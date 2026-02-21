@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AURA 後台管理系統</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500;600&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0F0F0D;
+    --surface: #181816;
+    --surface2: #222220;
+    --surface3: #2A2A28;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #F0EFEB;
+    --text-mid: rgba(240,239,235,0.55);
+    --text-dim: rgba(240,239,235,0.3);
+    --rose: #C4747A;
+    --rose-dark: #A55E63;
+    --rose-pale: rgba(196,116,122,0.1);
+    --gold: #B89A6A;
+    --gold-pale: rgba(184,154,106,0.1);
+    --green: #7AAA7E;
+    --green-pale: rgba(122,170,126,0.1);
+    --sidebar-w: 240px;
+  }
+
+  body {
+    font-family: 'DM Sans', 'Noto Sans TC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    position: fixed; top: 0; bottom: 0; left: 0;
+    z-index: 50;
+    transition: transform 0.3s;
+  }
+
+  .sidebar-logo {
+    padding: 28px 24px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px; font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--text);
+  }
+
+  .logo-text span { color: var(--rose); }
+
+  .logo-sub {
+    font-size: 10px; color: var(--text-dim);
+    letter-spacing: 0.12em; text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .sidebar-nav { padding: 20px 0; flex: 1; overflow-y: auto; }
+
+  .nav-section-label {
+    padding: 8px 24px 6px;
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 24px;
+    cursor: pointer;
+    color: var(--text-mid);
+    font-size: 13px;
+    transition: all 0.2s;
+    border-left: 2px solid transparent;
+    text-decoration: none;
+  }
+
+  .nav-item:hover { color: var(--text); background: var(--surface2); }
+
+  .nav-item.active {
+    color: var(--text);
+    background: var(--rose-pale);
+    border-left-color: var(--rose);
+  }
+
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  .sidebar-bottom {
+    padding: 20px 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .user-info {
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .user-avatar {
+    width: 32px; height: 32px;
+    background: var(--rose-pale);
+    border: 1px solid var(--rose);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; color: var(--rose);
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  .user-name { font-size: 13px; color: var(--text-mid); }
+  .user-plan { font-size: 10px; color: var(--rose); letter-spacing: 0.06em; }
+
+  /* MAIN */
+  .main {
+    margin-left: var(--sidebar-w);
+    flex: 1; min-height: 100vh;
+    display: flex; flex-direction: column;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 36px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 40;
+  }
+
+  .topbar-title {
+    font-size: 16px; font-weight: 500;
+    color: var(--text);
+  }
+
+  .topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+  .topbar-date { font-size: 12px; color: var(--text-dim); }
+
+  .btn {
+    padding: 9px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; cursor: pointer;
+    border: none; transition: all 0.2s;
+    letter-spacing: 0.03em;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+  }
+
+  .btn-sm { padding: 7px 14px; font-size: 12px; }
+
+  .btn-primary { background: var(--rose); color: white; }
+  .btn-primary:hover { background: var(--rose-dark); }
+
+  .btn-surface { background: var(--surface3); color: var(--text-mid); border: 1px solid var(--border); }
+  .btn-surface:hover { color: var(--text); border-color: var(--border2); }
+
+  .btn-ghost { background: transparent; color: var(--text-mid); border: 1px solid var(--border); }
+  .btn-ghost:hover { color: var(--text); border-color: var(--border2); }
+
+  /* CONTENT */
+  .content { padding: 32px 36px; flex: 1; }
+
+  /* PANELS */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* STAT CARDS */
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 16px; margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 24px;
+    transition: border-color 0.2s;
+  }
+
+  .stat-card:hover { border-color: var(--border2); }
+
+  .stat-label {
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-dim); margin-bottom: 12px;
+  }
+
+  .stat-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px; font-weight: 300;
+    color: var(--text); line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .stat-change {
+    font-size: 12px;
+    display: flex; align-items: center; gap: 4px;
+  }
+
+  .stat-change.up { color: var(--green); }
+  .stat-change.down { color: var(--rose); }
+
+  /* CONTENT GRID */
+  .content-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+
+  .card-title {
+    font-size: 14px; font-weight: 500; color: var(--text);
+  }
+
+  .card-body { padding: 20px 24px; }
+
+  /* APPOINTMENTS */
+  .appt-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .appt-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+  }
+
+  .appt-time {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px; font-weight: 300;
+    color: var(--text); min-width: 52px;
+    text-align: center; line-height: 1;
+  }
+
+  .appt-time small { display: block; font-size: 10px; color: var(--text-dim); font-family: 'DM Sans', sans-serif; }
+
+  .appt-info { flex: 1; }
+  .appt-name { font-size: 13px; color: var(--text); margin-bottom: 2px; }
+  .appt-service { font-size: 11px; color: var(--text-mid); }
+
+  .appt-status {
+    padding: 3px 10px;
+    font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+
+  .status-confirmed { background: var(--green-pale); color: var(--green); border: 1px solid rgba(122,170,126,0.2); }
+  .status-pending { background: var(--gold-pale); color: var(--gold); border: 1px solid rgba(184,154,106,0.2); }
+  .status-done { background: var(--surface3); color: var(--text-dim); border: 1px solid var(--border); }
+
+  /* CHART */
+  .mini-chart { height: 100px; display: flex; align-items: flex-end; gap: 6px; padding: 0 4px; }
+  .bar { flex: 1; background: var(--rose-pale); border-top: 1px solid var(--rose); transition: background 0.2s; cursor: pointer; position: relative; }
+  .bar:hover { background: rgba(196,116,122,0.2); }
+  .bar.highlight { background: rgba(196,116,122,0.25); border-top-color: var(--rose); }
+
+  .chart-labels { display: flex; gap: 6px; padding: 6px 4px 0; }
+  .chart-label { flex: 1; text-align: center; font-size: 10px; color: var(--text-dim); }
+
+  /* GALLERY MANAGER */
+  .gallery-toolbar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .upload-zone {
+    border: 2px dashed var(--border2);
+    background: var(--surface2);
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--rose);
+    background: var(--rose-pale);
+  }
+
+  .upload-zone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer;
+  }
+
+  .upload-icon { margin-bottom: 12px; color: var(--text-dim); }
+  .upload-title { font-size: 15px; color: var(--text-mid); margin-bottom: 6px; }
+  .upload-hint { font-size: 12px; color: var(--text-dim); }
+
+  .gallery-filters {
+    display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: 6px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-mid);
+    font-size: 12px; cursor: pointer; transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .filter-btn.active, .filter-btn:hover {
+    background: var(--rose-pale);
+    border-color: var(--rose);
+    color: var(--rose);
+  }
+
+  .gallery-grid-admin {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+  }
+
+  .gallery-thumb {
+    position: relative; aspect-ratio: 1;
+    background: var(--surface2);
+    overflow: hidden; cursor: pointer;
+    border: 1px solid var(--border);
+    transition: border-color 0.2s;
+  }
+
+  .gallery-thumb:hover { border-color: var(--border2); }
+  .gallery-thumb.selected { border-color: var(--rose); }
+
+  .gallery-thumb img {
+    width: 100%; height: 100%; object-fit: cover;
+    display: block; transition: transform 0.3s;
+  }
+
+  .gallery-thumb:hover img { transform: scale(1.04); }
+
+  .gallery-thumb-overlay {
+    position: absolute; inset: 0;
+    background: rgba(15,15,13,0.7);
+    opacity: 0; transition: opacity 0.2s;
+    display: flex; flex-direction: column;
+    justify-content: space-between; padding: 10px;
+  }
+
+  .gallery-thumb:hover .gallery-thumb-overlay { opacity: 1; }
+  .gallery-thumb.selected .gallery-thumb-overlay { opacity: 1; background: rgba(196,116,122,0.3); }
+
+  .thumb-actions { display: flex; justify-content: flex-end; gap: 6px; }
+
+  .thumb-btn {
+    width: 28px; height: 28px;
+    background: rgba(255,255,255,0.1);
+    border: none; color: white; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+    font-size: 12px;
+  }
+
+  .thumb-btn:hover { background: rgba(255,255,255,0.2); }
+  .thumb-btn.delete:hover { background: rgba(196,116,122,0.6); }
+
+  .thumb-label {
+    font-size: 11px; color: rgba(255,255,255,0.8);
+    background: rgba(0,0,0,0.4); padding: 2px 6px;
+    align-self: flex-start;
+  }
+
+  .thumb-placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 8px;
+    color: var(--text-dim);
+  }
+
+  /* MEMBERS */
+  .table { width: 100%; border-collapse: collapse; }
+  .table th {
+    text-align: left; padding: 10px 16px;
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+  }
+  .table td {
+    padding: 13px 16px;
+    font-size: 13px; color: var(--text-mid);
+    border-bottom: 1px solid var(--border);
+  }
+  .table tr:hover td { background: var(--surface2); color: var(--text); }
+  .table td:first-child { color: var(--text); }
+
+  .badge {
+    display: inline-block; padding: 2px 8px;
+    font-size: 10px; letter-spacing: 0.06em;
+  }
+
+  .badge-rose { background: var(--rose-pale); color: var(--rose); border: 1px solid rgba(196,116,122,0.2); }
+  .badge-gold { background: var(--gold-pale); color: var(--gold); border: 1px solid rgba(184,154,106,0.2); }
+  .badge-green { background: var(--green-pale); color: var(--green); border: 1px solid rgba(122,170,126,0.2); }
+
+  /* SETTINGS */
+  .settings-section { margin-bottom: 32px; }
+  .settings-title {
+    font-size: 13px; color: var(--text-mid);
+    text-transform: uppercase; letter-spacing: 0.1em;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+
+  .form-label { font-size: 12px; color: var(--text-dim); letter-spacing: 0.04em; }
+
+  .form-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  .form-input:focus { border-color: var(--rose); }
+
+  .form-select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    outline: none;
+    width: 100%;
+    cursor: pointer;
+  }
+
+  /* MODAL */
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    display: none; align-items: center; justify-content: center;
+  }
+
+  .modal-backdrop.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    width: 480px; max-width: 95vw;
+    max-height: 90vh; overflow-y: auto;
+  }
+
+  .modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+
+  .modal-title { font-size: 15px; color: var(--text); }
+
+  .modal-close {
+    background: none; border: none; color: var(--text-dim);
+    cursor: pointer; font-size: 18px; padding: 4px 8px;
+    transition: color 0.2s;
+  }
+
+  .modal-close:hover { color: var(--text); }
+
+  .modal-body { padding: 24px; }
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: flex-end; gap: 10px;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 32px; right: 32px;
+    background: var(--surface3);
+    border: 1px solid var(--border2);
+    padding: 14px 20px;
+    font-size: 13px; color: var(--text);
+    z-index: 300;
+    transform: translateY(20px); opacity: 0;
+    transition: all 0.3s;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .toast-dot.error { background: var(--rose); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--surface3); }
+
+  @media (max-width: 1024px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .content-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: none; }
+    .main { margin-left: 0; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">AU<span>R</span>A</div>
+    <div class="logo-sub">後台管理系統</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">主要功能</div>
+    <a class="nav-item active" data-panel="dashboard">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="1" y="1" width="6" height="6"/><rect x="9" y="1" width="6" height="6"/>
+        <rect x="1" y="9" width="6" height="6"/><rect x="9" y="9" width="6" height="6"/>
+      </svg>
+      儀表板
+    </a>
+    <a class="nav-item" data-panel="appointments">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="2" y="3" width="12" height="12" rx="1"/>
+        <path d="M5 1v4M11 1v4M2 7h12"/>
+      </svg>
+      預約管理
+    </a>
+    <a class="nav-item" data-panel="members">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="8" cy="5" r="3"/>
+        <path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+      </svg>
+      會員管理
+    </a>
+
+    <div class="nav-section-label" style="margin-top:16px">內容管理</div>
+    <a class="nav-item" data-panel="gallery">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="1" y="1" width="14" height="14" rx="1"/>
+        <circle cx="5.5" cy="5.5" r="1.5"/>
+        <path d="M15 11l-4-4L5 15"/>
+      </svg>
+      作品相簿
+    </a>
+    <a class="nav-item" data-panel="services">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M8 1l2 5h5l-4 3 1.5 5L8 11l-4.5 3 1.5-5-4-3h5z"/>
+      </svg>
+      服務項目
+    </a>
+
+    <div class="nav-section-label" style="margin-top:16px">報表</div>
+    <a class="nav-item" data-panel="analytics">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M2 14V7l4-3 4 2 4-5"/>
+        <path d="M2 14h12"/>
+      </svg>
+      業績分析
+    </a>
+    <a class="nav-item" data-panel="settings">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="8" cy="8" r="2.5"/>
+        <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.42 1.42M11.53 11.53l1.42 1.42M3.05 12.95l1.42-1.42M11.53 4.47l1.42-1.42"/>
+      </svg>
+      系統設定
+    </a>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <div class="user-info">
+      <div class="user-avatar">A</div>
+      <div>
+        <div class="user-name">管理員</div>
+        <div class="user-plan">Pro 方案</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-title" id="panelTitle">儀表板</div>
+    <div class="topbar-actions">
+      <span class="topbar-date" id="currentDate"></span>
+      <a href="index.html" class="btn btn-ghost btn-sm">查看前台</a>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">今日預約</div>
+          <div class="stat-value">18</div>
+          <div class="stat-change up">↑ 12% 較昨日</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">本月營收</div>
+          <div class="stat-value">$47,820</div>
+          <div class="stat-change up">↑ 8.3% 較上月</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">活躍會員</div>
+          <div class="stat-value">342</div>
+          <div class="stat-change up">↑ 5 位新增</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">平均單價</div>
+          <div class="stat-value">$1,240</div>
+          <div class="stat-change down">↓ 2.1% 較上月</div>
+        </div>
+      </div>
+
+      <div class="content-grid">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">今日預約</span>
+            <button class="btn btn-primary btn-sm" onclick="showPanel('appointments')">查看全部</button>
+          </div>
+          <div class="card-body">
+            <div class="appt-list">
+              <div class="appt-item">
+                <div class="appt-time">10:00<small>AM</small></div>
+                <div class="appt-info">
+                  <div class="appt-name">林雅芸</div>
+                  <div class="appt-service">剪髮 + 護髮療程</div>
+                </div>
+                <span class="appt-status status-confirmed">已確認</span>
+              </div>
+              <div class="appt-item">
+                <div class="appt-time">11:30<small>AM</small></div>
+                <div class="appt-info">
+                  <div class="appt-name">陳美玲</div>
+                  <div class="appt-service">凝膠美甲 × 2</div>
+                </div>
+                <span class="appt-status status-pending">待確認</span>
+              </div>
+              <div class="appt-item">
+                <div class="appt-time">2:00<small>PM</small></div>
+                <div class="appt-info">
+                  <div class="appt-name">王宣慈</div>
+                  <div class="appt-service">嫁接睫毛 日系款</div>
+                </div>
+                <span class="appt-status status-confirmed">已確認</span>
+              </div>
+              <div class="appt-item">
+                <div class="appt-time">3:30<small>PM</small></div>
+                <div class="appt-info">
+                  <div class="appt-name">李怡君</div>
+                  <div class="appt-service">全身精油 SPA</div>
+                </div>
+                <span class="appt-status status-confirmed">已確認</span>
+              </div>
+              <div class="appt-item">
+                <div class="appt-time">5:00<small>PM</small></div>
+                <div class="appt-info">
+                  <div class="appt-name">張雅婷</div>
+                  <div class="appt-service">染髮 + 燙髮</div>
+                </div>
+                <span class="appt-status status-done">已完成</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">本週業績</span>
+            <span style="font-size:12px;color:var(--text-dim)">2026 W8</span>
+          </div>
+          <div class="card-body">
+            <div style="margin-bottom:16px">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300">$47,820</div>
+              <div style="font-size:12px;color:var(--green)">↑ 8.3% 較上週</div>
+            </div>
+            <div class="mini-chart">
+              <div class="bar" style="height:45%"></div>
+              <div class="bar" style="height:62%"></div>
+              <div class="bar" style="height:38%"></div>
+              <div class="bar highlight" style="height:88%"></div>
+              <div class="bar" style="height:74%"></div>
+              <div class="bar" style="height:55%"></div>
+              <div class="bar" style="height:20%"></div>
+            </div>
+            <div class="chart-labels">
+              <span class="chart-label">一</span>
+              <span class="chart-label">二</span>
+              <span class="chart-label">三</span>
+              <span class="chart-label">四</span>
+              <span class="chart-label">五</span>
+              <span class="chart-label">六</span>
+              <span class="chart-label">日</span>
+            </div>
+
+            <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div style="padding:12px;background:var(--surface2);border:1px solid var(--border)">
+                <div style="font-size:10px;color:var(--text-dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.1em">最熱門服務</div>
+                <div style="font-size:13px;color:var(--text)">凝膠美甲</div>
+              </div>
+              <div style="padding:12px;background:var(--surface2);border:1px solid var(--border)">
+                <div style="font-size:10px;color:var(--text-dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.1em">回訪率</div>
+                <div style="font-size:13px;color:var(--text)">68.4%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- APPOINTMENTS -->
+    <div class="panel" id="panel-appointments">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+        <div></div>
+        <button class="btn btn-primary" onclick="openModal('apptModal')">+ 新增預約</button>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">所有預約</span>
+          <div style="display:flex;gap:8px">
+            <select class="form-select" style="width:auto;padding:6px 12px;font-size:12px">
+              <option>全部狀態</option>
+              <option>已確認</option>
+              <option>待確認</option>
+              <option>已完成</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-body" style="padding:0">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>顧客</th>
+                <th>服務項目</th>
+                <th>日期 / 時間</th>
+                <th>負責人員</th>
+                <th>狀態</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>林雅芸</td>
+                <td>剪髮 + 護髮療程</td>
+                <td>2026/02/21 10:00</td>
+                <td>小玲</td>
+                <td><span class="badge badge-green">已確認</span></td>
+                <td><button class="btn btn-surface btn-sm">編輯</button></td>
+              </tr>
+              <tr>
+                <td>陳美玲</td>
+                <td>凝膠美甲 × 2</td>
+                <td>2026/02/21 11:30</td>
+                <td>小芳</td>
+                <td><span class="badge badge-gold">待確認</span></td>
+                <td><button class="btn btn-surface btn-sm">編輯</button></td>
+              </tr>
+              <tr>
+                <td>王宣慈</td>
+                <td>嫁接睫毛 日系款</td>
+                <td>2026/02/21 14:00</td>
+                <td>小玲</td>
+                <td><span class="badge badge-green">已確認</span></td>
+                <td><button class="btn btn-surface btn-sm">編輯</button></td>
+              </tr>
+              <tr>
+                <td>李怡君</td>
+                <td>全身精油 SPA</td>
+                <td>2026/02/21 15:30</td>
+                <td>小梅</td>
+                <td><span class="badge badge-green">已確認</span></td>
+                <td><button class="btn btn-surface btn-sm">編輯</button></td>
+              </tr>
+              <tr>
+                <td>張雅婷</td>
+                <td>染髮 + 燙髮</td>
+                <td>2026/02/21 17:00</td>
+                <td>小玲</td>
+                <td><span class="badge" style="background:var(--surface3);color:var(--text-dim);border:1px solid var(--border)">已完成</span></td>
+                <td><button class="btn btn-surface btn-sm">編輯</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEMBERS -->
+    <div class="panel" id="panel-members">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+        <div style="display:flex;gap:8px">
+          <input class="form-input" placeholder="搜尋會員..." style="width:240px">
+        </div>
+        <button class="btn btn-primary">+ 新增會員</button>
+      </div>
+
+      <div class="card">
+        <div class="card-body" style="padding:0">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>姓名</th>
+                <th>電話</th>
+                <th>消費次數</th>
+                <th>累計消費</th>
+                <th>會員等級</th>
+                <th>上次到訪</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="membersTable">
+              <tr>
+                <td>林雅芸</td>
+                <td>0912-345-678</td>
+                <td>24</td>
+                <td>$28,640</td>
+                <td><span class="badge badge-rose">VIP</span></td>
+                <td>2026/02/18</td>
+                <td><button class="btn btn-surface btn-sm">查看</button></td>
+              </tr>
+              <tr>
+                <td>陳美玲</td>
+                <td>0923-456-789</td>
+                <td>8</td>
+                <td>$9,320</td>
+                <td><span class="badge badge-gold">一般</span></td>
+                <td>2026/02/10</td>
+                <td><button class="btn btn-surface btn-sm">查看</button></td>
+              </tr>
+              <tr>
+                <td>王宣慈</td>
+                <td>0934-567-890</td>
+                <td>16</td>
+                <td>$15,890</td>
+                <td><span class="badge badge-rose">VIP</span></td>
+                <td>2026/02/14</td>
+                <td><button class="btn btn-surface btn-sm">查看</button></td>
+              </tr>
+              <tr>
+                <td>李怡君</td>
+                <td>0945-678-901</td>
+                <td>3</td>
+                <td>$3,200</td>
+                <td><span class="badge" style="background:var(--surface3);color:var(--text-dim);border:1px solid var(--border)">新會員</span></td>
+                <td>2026/02/05</td>
+                <td><button class="btn btn-surface btn-sm">查看</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- GALLERY -->
+    <div class="panel" id="panel-gallery">
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="fileInput" accept="image/*" multiple>
+        <div class="upload-icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+            <path d="M17 8l-5-5-5 5M12 3v12"/>
+          </svg>
+        </div>
+        <div class="upload-title">拖曳或點擊上傳作品照片</div>
+        <div class="upload-hint">支援 JPG、PNG、WEBP，建議解析度 1200×1200 以上</div>
+      </div>
+
+      <div class="gallery-toolbar">
+        <div class="gallery-filters">
+          <button class="filter-btn active" data-category="all">全部</button>
+          <button class="filter-btn" data-category="美髮">美髮</button>
+          <button class="filter-btn" data-category="美甲">美甲</button>
+          <button class="filter-btn" data-category="美睫">美睫</button>
+          <button class="filter-btn" data-category="美容">美容</button>
+          <button class="filter-btn" data-category="SPA">SPA</button>
+          <button class="filter-btn" data-category="其他">其他</button>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span id="photoCount" style="font-size:12px;color:var(--text-dim)">0 張作品</span>
+          <button class="btn btn-surface btn-sm" onclick="clearSelectedPhotos()" id="deleteSelectedBtn" style="display:none">刪除選取</button>
+        </div>
+      </div>
+
+      <div class="gallery-grid-admin" id="adminGallery">
+        <!-- Photos loaded dynamically -->
+      </div>
+
+      <div id="emptyGallery" style="text-align:center;padding:60px 20px;color:var(--text-dim)">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="margin:0 auto 16px;display:block;opacity:0.3">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+          <path d="M21 15l-5-5L5 21"/>
+        </svg>
+        <p style="font-size:14px">尚未上傳任何作品</p>
+        <p style="font-size:12px;margin-top:6px">上傳作品照片後，將自動顯示於前端相簿</p>
+      </div>
+    </div>
+
+    <!-- SERVICES -->
+    <div class="panel" id="panel-services">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+        <div></div>
+        <button class="btn btn-primary" onclick="openModal('serviceModal')">+ 新增服務</button>
+      </div>
+      <div class="card">
+        <div class="card-body" style="padding:0">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>服務名稱</th>
+                <th>類別</th>
+                <th>時間</th>
+                <th>價格</th>
+                <th>狀態</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>剪髮 + 護髮療程</td>
+                <td>美髮</td>
+                <td>90 分鐘</td>
+                <td>$1,200</td>
+                <td><span class="badge badge-green">上架中</span></td>
+                <td><button class="btn btn-surface btn-sm">編輯</button></td>
+              </tr>
+              <tr>
+                <td>凝膠美甲 基礎款</td>
+                <td>美甲</td>
+                <td>60 分鐘</td>
+                <td>$800</td>
+                <td><span class="badge badge-green">上架中</span></td>
+                <td><button class="btn btn-surface btn-sm">編輯</button></td>
+              </tr>
+              <tr>
+                <td>嫁接睫毛 日系款</td>
+                <td>美睫</td>
+                <td>120 分鐘</td>
+                <td>$1,800</td>
+                <td><span class="badge badge-green">上架中</span></td>
+                <td><button class="btn btn-surface btn-sm">編輯</button></td>
+              </tr>
+              <tr>
+                <td>全身精油 SPA</td>
+                <td>SPA 按摩</td>
+                <td>90 分鐘</td>
+                <td>$2,200</td>
+                <td><span class="badge badge-green">上架中</span></td>
+                <td><button class="btn btn-surface btn-sm">編輯</button></td>
+              </tr>
+              <tr>
+                <td>染髮 + 燙髮</td>
+                <td>美髮</td>
+                <td>180 分鐘</td>
+                <td>$3,500</td>
+                <td><span class="badge badge-gold">調整中</span></td>
+                <td><button class="btn btn-surface btn-sm">編輯</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="panel" id="panel-analytics">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">年度營收</div>
+          <div class="stat-value">$582,400</div>
+          <div class="stat-change up">↑ 22% 較去年</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">總服務筆數</div>
+          <div class="stat-value">1,847</div>
+          <div class="stat-change up">↑ 18% 較去年</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">新客人數</div>
+          <div class="stat-value">286</div>
+          <div class="stat-change up">↑ 31% 較去年</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">顧客回訪率</div>
+          <div class="stat-value">68.4%</div>
+          <div class="stat-change up">↑ 5.2%</div>
+        </div>
+      </div>
+
+      <div class="content-grid">
+        <div class="card">
+          <div class="card-header"><span class="card-title">月度業績趨勢</span></div>
+          <div class="card-body">
+            <div class="mini-chart" style="height:140px">
+              <div class="bar" style="height:55%"></div>
+              <div class="bar" style="height:42%"></div>
+              <div class="bar" style="height:68%"></div>
+              <div class="bar" style="height:74%"></div>
+              <div class="bar" style="height:60%"></div>
+              <div class="bar" style="height:85%"></div>
+              <div class="bar" style="height:72%"></div>
+              <div class="bar" style="height:90%"></div>
+              <div class="bar" style="height:78%"></div>
+              <div class="bar" style="height:82%"></div>
+              <div class="bar" style="height:88%"></div>
+              <div class="bar highlight" style="height:100%"></div>
+            </div>
+            <div class="chart-labels">
+              <span class="chart-label">1</span><span class="chart-label">2</span>
+              <span class="chart-label">3</span><span class="chart-label">4</span>
+              <span class="chart-label">5</span><span class="chart-label">6</span>
+              <span class="chart-label">7</span><span class="chart-label">8</span>
+              <span class="chart-label">9</span><span class="chart-label">10</span>
+              <span class="chart-label">11</span><span class="chart-label">12</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">熱門服務排行</span></div>
+          <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                  <span style="font-size:13px">凝膠美甲</span>
+                  <span style="font-size:13px;color:var(--rose)">32%</span>
+                </div>
+                <div style="height:4px;background:var(--surface3)"><div style="height:100%;width:32%;background:var(--rose)"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                  <span style="font-size:13px">剪髮護髮</span>
+                  <span style="font-size:13px;color:var(--gold)">24%</span>
+                </div>
+                <div style="height:4px;background:var(--surface3)"><div style="height:100%;width:24%;background:var(--gold)"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                  <span style="font-size:13px">嫁接睫毛</span>
+                  <span style="font-size:13px;color:var(--green)">18%</span>
+                </div>
+                <div style="height:4px;background:var(--surface3)"><div style="height:100%;width:18%;background:var(--green)"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                  <span style="font-size:13px">精油 SPA</span>
+                  <span style="font-size:13px;color:var(--text-mid)">14%</span>
+                </div>
+                <div style="height:4px;background:var(--surface3)"><div style="height:100%;width:14%;background:var(--surface3)"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="panel" id="panel-settings">
+      <div style="max-width:720px">
+        <div class="settings-section">
+          <div class="settings-title">店家基本資訊</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">店家名稱</label>
+              <input class="form-input" value="林雅芸美髮沙龍" placeholder="請輸入店家名稱">
+            </div>
+            <div class="form-group">
+              <label class="form-label">產業類別</label>
+              <select class="form-select">
+                <option>美髮沙龍</option>
+                <option>美容美顏</option>
+                <option>美甲美睫</option>
+                <option>醫美診所</option>
+                <option>寵物美容</option>
+                <option>運動瑜伽</option>
+                <option>SPA 按摩</option>
+                <option>整復推拿</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">聯絡電話</label>
+              <input class="form-input" value="02-2345-6789" placeholder="電話號碼">
+            </div>
+            <div class="form-group">
+              <label class="form-label">營業時間</label>
+              <input class="form-input" value="週二至週日 10:00 - 20:00" placeholder="營業時間">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">地址</label>
+            <input class="form-input" value="台北市大安區忠孝東路四段123號" placeholder="店家地址">
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-title">預約設定</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">預約提前通知 (小時)</label>
+              <input class="form-input" type="number" value="24">
+            </div>
+            <div class="form-group">
+              <label class="form-label">最大預約提前天數</label>
+              <input class="form-input" type="number" value="30">
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="showToast('設定已儲存')">儲存設定</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-backdrop" id="apptModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">新增預約</span>
+      <button class="modal-close" onclick="closeModal('apptModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="form-group">
+          <label class="form-label">顧客姓名</label>
+          <input class="form-input" placeholder="請輸入姓名或搜尋會員">
+        </div>
+        <div class="form-group">
+          <label class="form-label">服務項目</label>
+          <select class="form-select">
+            <option>剪髮 + 護髮療程</option>
+            <option>凝膠美甲 基礎款</option>
+            <option>嫁接睫毛 日系款</option>
+            <option>全身精油 SPA</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">日期</label>
+            <input class="form-input" type="date">
+          </div>
+          <div class="form-group">
+            <label class="form-label">時間</label>
+            <input class="form-input" type="time" value="10:00">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">備注</label>
+          <input class="form-input" placeholder="特殊需求或備注">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('apptModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveAppt()">新增預約</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="serviceModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">新增服務項目</span>
+      <button class="modal-close" onclick="closeModal('serviceModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="form-group">
+          <label class="form-label">服務名稱</label>
+          <input class="form-input" placeholder="服務名稱">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">類別</label>
+            <select class="form-select">
+              <option>美髮</option><option>美甲</option><option>美睫</option>
+              <option>美容</option><option>SPA 按摩</option><option>其他</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">服務時間 (分鐘)</label>
+            <input class="form-input" type="number" placeholder="60">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">價格 (NT$)</label>
+          <input class="form-input" type="number" placeholder="0">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('serviceModal')">取消</button>
+      <button class="btn btn-primary" onclick="closeModal('serviceModal');showToast('服務已新增')">新增服務</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="labelModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">設定照片標籤</span>
+      <button class="modal-close" onclick="closeModal('labelModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">作品標題</label>
+        <input class="form-input" id="labelInput" placeholder="例如：法式美甲設計">
+      </div>
+      <div class="form-group" style="margin-top:14px">
+        <label class="form-label">類別</label>
+        <select class="form-select" id="categoryInput">
+          <option value="美髮">美髮</option>
+          <option value="美甲">美甲</option>
+          <option value="美睫">美睫</option>
+          <option value="美容">美容</option>
+          <option value="SPA">SPA</option>
+          <option value="其他">其他</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('labelModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveLabel()">確認上傳</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <div class="toast-dot" id="toastDot"></div>
+  <span id="toastMsg"></span>
+</div>
+
+<script>
+// Panel navigation
+const panelTitles = {
+  dashboard: '儀表板',
+  appointments: '預約管理',
+  members: '會員管理',
+  gallery: '作品相簿',
+  services: '服務項目',
+  analytics: '業績分析',
+  settings: '系統設定'
+};
+
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const panel = item.dataset.panel;
+    if (!panel) return;
+    showPanel(panel);
+  });
+});
+
+function showPanel(name) {
+  document.querySelectorAll('.nav-item').forEach(i => {
+    i.classList.toggle('active', i.dataset.panel === name);
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.getElementById('panelTitle').textContent = panelTitles[name] || name;
+
+  if (name === 'gallery') renderGallery();
+}
+
+// Date
+const now = new Date();
+document.getElementById('currentDate').textContent =
+  now.toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
+
+// GALLERY
+let pendingFiles = [];
+let currentEditIdx = null;
+let activeFilter = 'all';
+
+function getImages() {
+  try { return JSON.parse(localStorage.getItem('velour_gallery') || '[]'); }
+  catch { return []; }
+}
+
+function saveImages(arr) {
+  localStorage.setItem('velour_gallery', JSON.stringify(arr));
+}
+
+const fileInput = document.getElementById('fileInput');
+const uploadZone = document.getElementById('uploadZone');
+
+fileInput.addEventListener('change', e => handleFiles(e.target.files));
+
+uploadZone.addEventListener('dragover', e => {
+  e.preventDefault();
+  uploadZone.classList.add('dragover');
+});
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  handleFiles(e.dataTransfer.files);
+});
+
+function handleFiles(files) {
+  const arr = Array.from(files).filter(f => f.type.startsWith('image/'));
+  if (!arr.length) return;
+  pendingFiles = arr;
+  currentEditIdx = 0;
+  document.getElementById('labelInput').value = '';
+  document.getElementById('categoryInput').value = '美甲';
+  openModal('labelModal');
+}
+
+function saveLabel() {
+  const label = document.getElementById('labelInput').value || '作品';
+  const category = document.getElementById('categoryInput').value;
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    const imgs = getImages();
+    imgs.unshift({ src: e.target.result, label, category, date: new Date().toISOString() });
+    saveImages(imgs);
+
+    currentEditIdx++;
+    if (currentEditIdx < pendingFiles.length) {
+      document.getElementById('labelInput').value = '';
+      reader.readAsDataURL(pendingFiles[currentEditIdx]);
+    } else {
+      closeModal('labelModal');
+      pendingFiles = [];
+      renderGallery();
+      showToast(`成功上傳作品照片`);
+    }
+  };
+  reader.readAsDataURL(pendingFiles[currentEditIdx]);
+}
+
+function renderGallery() {
+  const imgs = getImages();
+  const filtered = activeFilter === 'all' ? imgs : imgs.filter(i => i.category === activeFilter);
+  const grid = document.getElementById('adminGallery');
+  const empty = document.getElementById('emptyGallery');
+
+  document.getElementById('photoCount').textContent = `${imgs.length} 張作品`;
+
+  if (imgs.length === 0) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  grid.innerHTML = filtered.map((img, i) => `
+    <div class="gallery-thumb" data-idx="${imgs.indexOf(img)}">
+      <img src="${img.src}" alt="${img.label}">
+      <div class="gallery-thumb-overlay">
+        <div class="thumb-actions">
+          <button class="thumb-btn delete" onclick="deletePhoto(${imgs.indexOf(img)}, event)" title="刪除">✕</button>
+        </div>
+        <span class="thumb-label">${img.label}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function deletePhoto(idx, e) {
+  e.stopPropagation();
+  const imgs = getImages();
+  imgs.splice(idx, 1);
+  saveImages(imgs);
+  renderGallery();
+  showToast('照片已刪除', 'error');
+}
+
+function clearSelectedPhotos() {
+  const selected = document.querySelectorAll('.gallery-thumb.selected');
+  const idxs = Array.from(selected).map(el => parseInt(el.dataset.idx));
+  let imgs = getImages();
+  imgs = imgs.filter((_, i) => !idxs.includes(i));
+  saveImages(imgs);
+  renderGallery();
+  showToast(`已刪除 ${idxs.length} 張照片`, 'error');
+}
+
+// Filter buttons
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilter = btn.dataset.category;
+    renderGallery();
+  });
+});
+
+renderGallery();
+
+// MODALS
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-backdrop').forEach(m => {
+  m.addEventListener('click', e => {
+    if (e.target === m) m.classList.remove('open');
+  });
+});
+
+function saveAppt() {
+  closeModal('apptModal');
+  showToast('預約已新增');
+}
+
+// TOAST
+function showToast(msg, type = 'success') {
+  const toast = document.getElementById('toast');
+  const dot = document.getElementById('toastDot');
+  document.getElementById('toastMsg').textContent = msg;
+  dot.className = 'toast-dot' + (type === 'error' ? ' error' : '');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>

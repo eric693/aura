@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AURA — 美業數位管理平台</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Noto+Serif+TC:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream: #F8F4EE;
+  --warm: #FAF8F5;
+  --charcoal: #1A1917;
+  --mid: #7A7570;
+  --light: #B5AFA8;
+  --rose: #C17B7F;
+  --rose2: #D4959A;
+  --rose-pale: #F3E8E9;
+  --gold: #C4A265;
+  --sage: #7DAE81;
+  --line-green: #06C755;
+  --line-dark: #00B900;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--warm);
+  color: var(--charcoal);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ─── CURSOR ─── */
+.cursor {
+  width: 10px; height: 10px; background: var(--rose);
+  border-radius: 50%; position: fixed; z-index: 9999;
+  pointer-events: none; transform: translate(-50%,-50%);
+  transition: width .3s, height .3s, background .3s;
+}
+.cursor-ring {
+  width: 36px; height: 36px;
+  border: 1.5px solid rgba(193,123,127,.45);
+  border-radius: 50%; position: fixed; z-index: 9998;
+  pointer-events: none; transform: translate(-50%,-50%);
+  transition: width .3s, height .3s, border-color .3s;
+}
+.cursor.expand { width: 14px; height: 14px; }
+.cursor-ring.expand { width: 52px; height: 52px; border-color: var(--rose); }
+.cursor.line-mode { background: var(--line-green); }
+.cursor-ring.line-mode { border-color: var(--line-green); }
+
+/* ─── NAV ─── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 26px 64px; transition: all .4s ease;
+}
+nav.scrolled {
+  background: rgba(248,244,238,.96); backdrop-filter: blur(16px);
+  padding: 15px 64px; border-bottom: 1px solid rgba(193,123,127,.12);
+}
+.nav-logo {
+  font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700;
+  color: var(--charcoal); letter-spacing: .24em; text-decoration: none; text-transform: uppercase;
+}
+.nav-logo span { color: var(--rose); }
+.nav-links { display: flex; align-items: center; gap: 38px; list-style: none; }
+.nav-links a {
+  text-decoration: none; font-size: 13px; color: var(--mid);
+  letter-spacing: .05em; transition: color .2s; position: relative;
+}
+.nav-links a::after {
+  content:''; position: absolute; bottom:-3px; left:0; right:0;
+  height:1px; background: var(--rose); transform: scaleX(0); transition: transform .3s;
+}
+.nav-links a:hover { color: var(--charcoal); }
+.nav-links a:hover::after { transform: scaleX(1); }
+.nav-line-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 20px; background: var(--line-green); color: white;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+  border: none; cursor: none; text-decoration: none; transition: background .25s;
+}
+.nav-line-btn:hover { background: var(--line-dark); }
+.nav-line-btn svg { width:18px; height:18px; flex-shrink:0; }
+.nav-cta-pair { display: flex; gap: 10px; align-items: center; }
+.btn-nav-primary {
+  padding: 11px 26px; background: var(--rose); color: white;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; letter-spacing:.08em;
+  border: none; cursor: none; text-decoration: none; transition: background .25s; display:inline-block;
+}
+.btn-nav-primary:hover { background: #aa6268; }
+
+/* ─── HERO ─── */
+.hero { min-height: 100vh; position: relative; overflow: hidden; display: flex; align-items: center; }
+.hero-bg { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 1fr; }
+.hero-bg-left { background: var(--cream); }
+.hero-bg-right { position: relative; overflow: hidden; }
+.hero-bg-right img {
+  width: 100%; height: 100%; object-fit: cover;
+  filter: brightness(.82) saturate(.88);
+  animation: heroZoom 14s ease-in-out infinite alternate;
+}
+@keyframes heroZoom { from { transform: scale(1.04); } to { transform: scale(1.11); } }
+
+.hero-content { position: relative; z-index: 10; padding: 140px 64px 100px; max-width: 600px; }
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--rose); margin-bottom: 34px;
+  opacity:0; animation: fadeUp .8s .2s ease forwards;
+}
+.hero-eyebrow::before { content:''; display:block; width:28px; height:1px; background:var(--rose); }
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(52px,5.5vw,82px); font-weight: 700; line-height: 1.07;
+  color: var(--charcoal); margin-bottom: 26px;
+  opacity:0; animation: fadeUp .9s .35s ease forwards;
+}
+.hero-title .accent { color: var(--rose); }
+.hero-body {
+  font-family: 'Noto Serif TC', serif; font-size: 16px; font-weight: 300;
+  color: var(--mid); line-height: 1.92; max-width: 400px; margin-bottom: 46px;
+  opacity:0; animation: fadeUp .9s .5s ease forwards;
+}
+.hero-cta { display: flex; gap: 14px; align-items: center; opacity:0; animation: fadeUp .9s .65s ease forwards; }
+.btn-primary {
+  padding: 15px 38px; background: var(--charcoal); color: white;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; letter-spacing:.1em;
+  border: none; cursor: none; text-decoration: none; transition: background .3s; display:inline-block;
+}
+.btn-primary:hover { background: var(--rose); }
+.btn-outline {
+  padding: 14px 34px; background: transparent; color: var(--charcoal);
+  font-family: 'DM Sans', sans-serif; font-size: 13px; letter-spacing:.1em;
+  border: 1px solid rgba(26,25,23,.26); cursor: none; text-decoration: none; transition: all .3s; display:inline-block;
+}
+.btn-outline:hover { border-color: var(--rose); color: var(--rose); }
+
+.hero-stats {
+  position: absolute; bottom: 60px; left: 64px; z-index: 10;
+  display: flex; gap: 52px;
+  opacity:0; animation: fadeUp .9s .8s ease forwards;
+}
+.stat-n { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 500; color: var(--charcoal); line-height: 1; }
+.stat-l { font-size: 11px; letter-spacing:.1em; text-transform: uppercase; color: var(--light); margin-top: 4px; }
+
+.hero-scroll-ind {
+  position: absolute; right: 64px; bottom: 60px; z-index: 10;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  opacity:0; animation: fadeIn 1s 1.2s ease forwards;
+}
+.scroll-line {
+  width: 1px; height: 60px;
+  background: linear-gradient(to bottom, var(--rose), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+@keyframes scrollPulse { 0%,100%{opacity:1;transform:scaleY(1);transform-origin:top;} 50%{opacity:.3;transform:scaleY(.5);transform-origin:top;} }
+.scroll-text { font-size: 10px; letter-spacing:.15em; text-transform: uppercase; color: var(--light); writing-mode: vertical-rl; }
+
+/* ─── MARQUEE ─── */
+.marquee-wrap { overflow: hidden; background: var(--charcoal); padding: 14px 0; }
+.marquee-track { display: flex; animation: marquee 30s linear infinite; width: max-content; }
+.marquee-item { display: flex; align-items: center; gap: 26px; padding: 0 32px; white-space: nowrap; font-size: 11px; letter-spacing:.2em; text-transform: uppercase; color: rgba(255,255,255,.34); }
+.marquee-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--rose); flex-shrink:0; }
+@keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+/* ─── ABOUT ─── */
+.about { padding: 130px 64px; display: grid; grid-template-columns: 5fr 7fr; gap: 96px; align-items: center; }
+.about-img-wrap { position: relative; }
+.about-img-main { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; }
+.about-img-accent { position: absolute; width: 55%; aspect-ratio: 1; object-fit: cover; bottom: -42px; right: -42px; border: 6px solid var(--warm); box-shadow: 0 12px 40px rgba(0,0,0,.1); }
+.about-badge { position: absolute; top: 32px; left: -26px; background: var(--rose); color: white; padding: 18px 20px; text-align: center; z-index: 2; }
+.about-badge-n { font-family: 'Playfair Display', serif; font-size: 34px; font-weight: 600; display: block; line-height: 1; }
+.about-badge-l { font-size: 10px; letter-spacing:.1em; text-transform: uppercase; display: block; margin-top: 4px; opacity:.88; }
+
+.s-eyebrow { font-size: 11px; letter-spacing:.2em; text-transform: uppercase; color: var(--rose); margin-bottom: 18px; display: flex; align-items: center; gap: 14px; }
+.s-eyebrow::before { content:''; width:28px; height:1px; background:var(--rose); }
+.s-h { font-family: 'Playfair Display', serif; font-size: clamp(32px,2.8vw,46px); font-weight: 700; line-height: 1.18; color: var(--charcoal); margin-bottom: 20px; }
+.s-p { font-family: 'Noto Serif TC', serif; font-size: 15px; font-weight: 300; color: var(--mid); line-height: 1.95; margin-bottom: 14px; }
+
+.about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 34px; }
+.a-feat { padding: 17px 19px; background: var(--cream); border-left: 2px solid var(--rose); }
+.a-feat-t { font-size: 13px; font-weight: 500; color: var(--charcoal); margin-bottom: 4px; }
+.a-feat-d { font-size: 12px; color: var(--mid); line-height: 1.6; }
+
+/* ─── INDUSTRIES ─── */
+.industries { padding: 0 64px 130px; }
+.ind-header { text-align: center; padding-bottom: 68px; }
+.ind-header .s-eyebrow { justify-content: center; }
+.ind-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+.ind-card { position: relative; overflow: hidden; cursor: none; aspect-ratio: 3/4; }
+
+/* Use CSS gradient backgrounds instead of external images that might fail */
+.ind-card .ind-bg {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  transition: transform .7s ease;
+  filter: brightness(.72) saturate(.85);
+}
+.ind-card:hover .ind-bg { transform: scale(1.08); filter: brightness(.58) saturate(.9); }
+.ind-bg-1 { background-image: url('https://picsum.photos/seed/hairsalon/400/550'); }
+.ind-bg-2 { background-image: url('https://picsum.photos/seed/nailart/400/550'); }
+.ind-bg-3 { background-image: url('https://picsum.photos/seed/skincare/400/550'); }
+.ind-bg-4 { background-image: url('https://picsum.photos/seed/spa1/400/550'); }
+.ind-bg-5 { background-image: url('https://picsum.photos/seed/medicalbty/400/550'); }
+.ind-bg-6 { background-image: url('https://picsum.photos/seed/yoga1/400/550'); }
+.ind-bg-7 { background-image: url('https://picsum.photos/seed/petgroom/400/550'); }
+.ind-bg-8 { background-image: url('https://picsum.photos/seed/wellness1/400/550'); }
+
+/* Solid fallback colours per card */
+.ind-card:nth-child(1) { background: #8B6E5E; }
+.ind-card:nth-child(2) { background: #A08478; }
+.ind-card:nth-child(3) { background: #7A9C8E; }
+.ind-card:nth-child(4) { background: #9E8072; }
+.ind-card:nth-child(5) { background: #7C8E9A; }
+.ind-card:nth-child(6) { background: #8E9A7C; }
+.ind-card:nth-child(7) { background: #A08A7A; }
+.ind-card:nth-child(8) { background: #8A7A9A; }
+
+.ind-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,14,12,.9) 0%, rgba(15,14,12,.05) 55%, transparent 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 26px; }
+.ind-tag { font-size: 10px; letter-spacing:.16em; text-transform: uppercase; color: var(--rose2); margin-bottom: 7px; }
+.ind-name { font-family: 'Playfair Display', serif; font-size: 21px; font-weight: 500; color: white; line-height: 1.2; margin-bottom: 10px; }
+.ind-line { width: 0; height: 1px; background: var(--rose); transition: width .5s ease; }
+.ind-card:hover .ind-line { width: 34px; }
+.ind-sub { font-size: 12px; color: rgba(255,255,255,.5); line-height: 1.6; margin-top: 10px; max-height: 0; overflow: hidden; transition: max-height .4s ease; }
+.ind-card:hover .ind-sub { max-height: 54px; }
+
+/* ─── FEATURES ─── */
+.features { padding: 130px 64px; background: var(--charcoal); }
+.feat-header { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: end; margin-bottom: 72px; }
+.feat-header .s-eyebrow { color: var(--rose2); }
+.feat-header .s-eyebrow::before { background: var(--rose2); }
+.feat-header .s-h { color: white; margin:0; }
+.feat-header .s-p { color: rgba(255,255,255,.4); }
+.feat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: rgba(255,255,255,.05); }
+.feat-block { background: var(--charcoal); padding: 46px 36px; position: relative; overflow: hidden; transition: background .35s; }
+.feat-block::before { content:''; position: absolute; top:0; left:0; right:0; height:2px; background: linear-gradient(to right,var(--rose),transparent); transform: scaleX(0); transform-origin: left; transition: transform .4s ease; }
+.feat-block:hover { background: #232220; }
+.feat-block:hover::before { transform: scaleX(1); }
+.feat-n { font-family: 'Playfair Display', serif; font-size: 52px; font-weight: 400; color: rgba(193,123,127,.18); line-height: 1; margin-bottom: 22px; }
+.feat-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 500; color: white; margin-bottom: 14px; }
+.feat-desc { font-size: 13px; color: rgba(255,255,255,.42); line-height: 1.88; }
+
+/* ─── GALLERY ─── */
+.gallery { padding: 130px 64px; background: var(--cream); }
+.gal-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 54px; }
+.gal-filter { display: flex; gap: 6px; }
+.fp { padding: 7px 18px; background: transparent; border: 1px solid rgba(193,123,127,.25); color: var(--mid); font-family: 'DM Sans',sans-serif; font-size: 12px; letter-spacing:.04em; cursor: none; transition: all .25s; }
+.fp.active,.fp:hover { background: var(--rose); border-color: var(--rose); color: white; }
+
+.gal-masonry { display: grid; grid-template-columns: repeat(12,1fr); grid-auto-rows: 58px; gap: 10px; }
+.gi { overflow: hidden; position: relative; cursor: none; }
+
+/* Picsum with fixed seeds – always same image */
+.gi .gi-img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .65s ease; }
+.gi:hover .gi-img { transform: scale(1.07); }
+.gi-ov { position: absolute; inset:0; background: linear-gradient(to top,rgba(15,14,12,.62) 0%,transparent 60%); opacity:0; transition:opacity .3s; display:flex; align-items:flex-end; padding:14px; }
+.gi:hover .gi-ov { opacity:1; }
+.gi-tag { font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:white; padding:3px 10px; background:var(--rose); }
+
+.gi:nth-child(1)  { grid-column:span 5; grid-row:span 7; }
+.gi:nth-child(2)  { grid-column:span 4; grid-row:span 4; }
+.gi:nth-child(3)  { grid-column:span 3; grid-row:span 4; }
+.gi:nth-child(4)  { grid-column:span 4; grid-row:span 5; }
+.gi:nth-child(5)  { grid-column:span 3; grid-row:span 5; }
+.gi:nth-child(6)  { grid-column:span 5; grid-row:span 6; }
+.gi:nth-child(7)  { grid-column:span 4; grid-row:span 6; }
+.gi:nth-child(8)  { grid-column:span 3; grid-row:span 5; }
+.gi:nth-child(9)  { grid-column:span 5; grid-row:span 5; }
+.gi:nth-child(10) { grid-column:span 7; grid-row:span 5; }
+
+/* ─── LINE OA SECTION ─── */
+.line-section {
+  padding: 130px 64px;
+  background: var(--warm);
+  position: relative; overflow: hidden;
+}
+
+.line-section::before {
+  content: '';
+  position: absolute; top: -120px; right: -120px;
+  width: 500px; height: 500px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(6,199,85,.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.line-inner { display: grid; grid-template-columns: 5fr 7fr; gap: 96px; align-items: center; }
+
+.line-text {}
+.line-text .s-eyebrow { color: var(--line-green); }
+.line-text .s-eyebrow::before { background: var(--line-green); }
+
+.line-logo-badge {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--line-green); color: white;
+  padding: 10px 20px; margin-bottom: 32px;
+  font-size: 13px; font-weight: 500; letter-spacing:.04em;
+}
+.line-logo-badge svg { width: 22px; height: 22px; }
+
+.line-features { display: flex; flex-direction: column; gap: 20px; margin-top: 36px; }
+.lf-item { display: flex; align-items: flex-start; gap: 16px; padding: 20px; background: var(--cream); border-left: 2px solid var(--line-green); transition: transform .25s, box-shadow .25s; }
+.lf-item:hover { transform: translateX(4px); box-shadow: -4px 0 0 var(--line-green); }
+.lf-icon { width: 36px; height: 36px; background: rgba(6,199,85,.12); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--line-green); }
+.lf-icon svg { width: 18px; height: 18px; }
+.lf-title { font-size: 14px; font-weight: 500; color: var(--charcoal); margin-bottom: 4px; }
+.lf-desc { font-size: 12px; color: var(--mid); line-height: 1.65; }
+
+/* LINE mockup phone */
+.line-mockup {
+  position: relative; display: flex; justify-content: center; align-items: flex-start;
+}
+
+.phone-frame {
+  width: 300px;
+  background: #F0F0F0;
+  border-radius: 36px;
+  box-shadow: 0 30px 80px rgba(0,0,0,.18), 0 0 0 10px #1A1917, 0 0 0 12px #333;
+  overflow: hidden;
+  position: relative;
+}
+
+.phone-notch {
+  background: #1A1917; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+}
+.phone-notch-bar { width: 80px; height: 6px; background: #333; border-radius: 3px; }
+
+.line-chat-ui { background: #EBE5E0; min-height: 520px; display: flex; flex-direction: column; }
+
+.line-header {
+  background: var(--line-green); padding: 14px 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.line-header-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: white; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.line-header-avatar svg { width: 22px; height: 22px; color: var(--line-green); }
+.line-header-info {}
+.line-header-name { font-size: 14px; font-weight: 600; color: white; }
+.line-header-status { font-size: 11px; color: rgba(255,255,255,.8); }
+
+.chat-body { flex: 1; padding: 14px 12px; display: flex; flex-direction: column; gap: 12px; }
+
+.chat-date { text-align: center; font-size: 10px; color: #888; background: rgba(255,255,255,.5); display: inline-block; padding: 3px 10px; border-radius: 10px; align-self: center; }
+
+.chat-msg { display: flex; gap: 8px; align-items: flex-end; }
+.chat-msg.me { flex-direction: row-reverse; }
+
+.chat-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--line-green); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.chat-avatar svg { width: 16px; height: 16px; color: white; }
+
+.chat-bubble {
+  max-width: 200px; padding: 10px 13px;
+  border-radius: 12px; font-size: 12px; line-height: 1.55; color: #1A1917;
+  background: white; box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+.chat-msg.me .chat-bubble { background: var(--line-green); color: white; border-radius: 12px 12px 0 12px; }
+.chat-bubble.system { background: var(--line-green); color: white; border-radius: 12px; }
+
+.chat-card {
+  background: white; border-radius: 12px; overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,.1); max-width: 220px;
+}
+.chat-card-img { width: 100%; height: 100px; object-fit: cover; display: block; background: linear-gradient(135deg,#C17B7F,#E8C4C4); }
+.chat-card-body { padding: 10px 12px; }
+.chat-card-title { font-size: 12px; font-weight: 600; margin-bottom: 4px; color: var(--charcoal); }
+.chat-card-desc { font-size: 11px; color: #888; line-height: 1.5; }
+.chat-card-btn {
+  display: block; padding: 8px; text-align: center;
+  background: var(--line-green); color: white;
+  font-size: 12px; font-weight: 500;
+  border: none; width: 100%; cursor: pointer;
+  border-top: 1px solid rgba(0,0,0,.05);
+}
+
+.line-richm {
+  background: white; border-radius: 12px; overflow: hidden;
+  max-width: 220px; box-shadow: 0 2px 8px rgba(0,0,0,.1);
+}
+.richm-img {
+  width: 100%; height: 120px;
+  background: linear-gradient(135deg, var(--rose) 0%, #E8A4A8 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; color: white;
+  font-family: 'Playfair Display', serif; font-weight: 700;
+}
+.richm-body { padding: 10px 12px; }
+.richm-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+.richm-sub { font-size: 11px; color: #888; }
+.richm-btns { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid #f0f0f0; }
+.richm-btn { padding: 10px 8px; text-align: center; font-size: 11px; color: var(--line-green); font-weight: 500; border: none; background: white; cursor: pointer; border-right: 1px solid #f0f0f0; }
+.richm-btn:last-child { border-right: none; }
+
+.line-typing { display: flex; gap: 4px; align-items: center; padding: 10px 13px; background: white; border-radius: 12px; max-width: 60px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.typing-dot { width: 6px; height: 6px; background: #ccc; border-radius: 50%; animation: typing 1.2s infinite; }
+.typing-dot:nth-child(2) { animation-delay: .2s; }
+.typing-dot:nth-child(3) { animation-delay: .4s; }
+@keyframes typing { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+.chat-time { font-size: 10px; color: #aaa; align-self: flex-end; }
+
+.line-menubar {
+  background: white; padding: 10px 16px;
+  display: flex; justify-content: space-around;
+  border-top: 1px solid #eee;
+}
+.menu-btn { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 9px; color: #888; cursor: pointer; }
+.menu-btn svg { width: 18px; height: 18px; }
+.menu-btn.active { color: var(--line-green); }
+
+/* Second phone - Rich Menu */
+.phone-frame-2 {
+  width: 260px; margin-top: 48px; margin-left: -30px;
+  background: #F0F0F0;
+  border-radius: 32px;
+  box-shadow: 0 24px 60px rgba(0,0,0,.14), 0 0 0 8px #1A1917, 0 0 0 10px #333;
+  overflow: hidden;
+  position: relative; z-index: -1;
+}
+
+.rich-menu-ui { background: #EBE5E0; }
+.rich-menu-chat { padding: 10px 12px; }
+.rich-menu-header { background: var(--line-green); padding: 12px 14px; display: flex; align-items: center; gap: 8px; }
+.rm-avatar { width: 30px; height: 30px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; }
+.rm-avatar svg { width: 18px; height: 18px; color: var(--line-green); }
+.rm-name { font-size: 13px; font-weight: 600; color: white; }
+
+.rich-menu-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px; background: rgba(255,255,255,.3);
+  margin-top: 4px;
+}
+.rm-cell {
+  background: white; padding: 16px 10px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  cursor: pointer; transition: background .2s;
+}
+.rm-cell:hover { background: rgba(6,199,85,.08); }
+.rm-cell svg { width: 22px; height: 22px; color: var(--line-green); }
+.rm-cell span { font-size: 10px; color: var(--charcoal); font-weight: 500; text-align: center; line-height: 1.3; }
+
+/* ─── LINE STEPS ─── */
+.line-steps {
+  padding: 80px 64px;
+  background: var(--charcoal);
+}
+.line-steps .s-eyebrow { color: var(--line-green); }
+.line-steps .s-eyebrow::before { background: var(--line-green); }
+.line-steps .s-h { color: white; margin-bottom: 60px; }
+
+.steps-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: rgba(255,255,255,.05); }
+.step-block { background: var(--charcoal); padding: 40px 30px; position: relative; }
+.step-block:not(:last-child)::after {
+  content: '→'; position: absolute; right: -14px; top: 50%; transform: translateY(-50%);
+  font-size: 18px; color: var(--line-green); z-index: 2;
+}
+.step-num { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 400; color: rgba(6,199,85,.15); line-height: 1; margin-bottom: 20px; }
+.step-title { font-size: 14px; font-weight: 500; color: white; margin-bottom: 10px; }
+.step-desc { font-size: 12px; color: rgba(255,255,255,.4); line-height: 1.8; }
+
+/* ─── TESTIMONIALS ─── */
+.testimonials { padding: 130px 64px; overflow: hidden; }
+.test-header { margin-bottom: 68px; text-align: center; }
+.test-header .s-eyebrow { justify-content: center; }
+.test-track-w { overflow: hidden; }
+.test-track { display: flex; gap: 22px; animation: testScroll 44s linear infinite; width: max-content; }
+@keyframes testScroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+.test-track:hover { animation-play-state: paused; }
+.tc { width: 360px; flex-shrink:0; background: white; padding: 36px; border: 1px solid rgba(193,123,127,.1); transition: border-color .3s, box-shadow .3s; }
+.tc:hover { border-color: var(--rose); box-shadow: 0 10px 32px rgba(193,123,127,.1); }
+.tq { font-family: 'Noto Serif TC', serif; font-size: 14px; font-weight: 300; line-height: 1.9; color: var(--mid); margin-bottom: 24px; position: relative; padding-top: 8px; }
+.tq::before { content:'"'; font-family:'Playfair Display',serif; font-size:56px; color: var(--rose-pale); position:absolute; top:-16px; left:-6px; line-height:1; }
+.ta { display: flex; align-items: center; gap: 12px; }
+.tav { width: 42px; height: 42px; border-radius: 50%; flex-shrink:0; background: var(--rose-pale); display:flex; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:18px; color:var(--rose); font-weight:600; }
+.tn { font-size: 13px; font-weight: 500; color: var(--charcoal); }
+.ts { font-size: 11px; color: var(--rose); margin-top: 2px; }
+
+/* ─── NUMBERS ─── */
+.numbers { display: grid; grid-template-columns: repeat(4,1fr); }
+.num-item { padding: 68px 36px; text-align: center; }
+.num-item:nth-child(1) { background: var(--rose); }
+.num-item:nth-child(2) { background: #B56D71; }
+.num-item:nth-child(3) { background: #A85C60; }
+.num-item:nth-child(4) { background: #9C4F54; }
+.num-n { font-family: 'Playfair Display', serif; font-size: 54px; font-weight: 700; color: white; line-height: 1; display: block; }
+.num-l { font-size: 12px; letter-spacing:.14em; text-transform: uppercase; color: rgba(255,255,255,.58); margin-top: 12px; display: block; }
+
+/* ─── CTA ─── */
+.cta-section { padding: 140px 64px; background: var(--charcoal); display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+.cta-section .s-eyebrow { color: var(--rose2); }
+.cta-section .s-eyebrow::before { background: var(--rose2); }
+.cta-section .s-h { color: white; }
+.cta-section .s-p { color: rgba(255,255,255,.4); }
+.cta-form { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); padding: 46px; }
+.cta-form-title { font-family: 'Playfair Display', serif; font-size: 21px; color: white; margin-bottom: 28px; font-weight: 500; }
+.ff { margin-bottom: 13px; }
+.ff input, .ff select {
+  width: 100%; padding: 13px 16px;
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+  color: white; font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none;
+  transition: border-color .2s; -webkit-appearance: none;
+}
+.ff input:focus,.ff select:focus { border-color: var(--rose); }
+.ff input::placeholder { color: rgba(255,255,255,.28); }
+.ff select option { background: #2B2825; color: white; }
+.btn-submit {
+  width: 100%; padding: 15px; background: var(--rose); color: white; border: none; cursor: none;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; letter-spacing:.12em; text-transform: uppercase;
+  margin-top: 8px; transition: background .3s;
+}
+.btn-submit:hover { background: #aa6268; }
+
+/* ─── FOOTER ─── */
+footer { background: #111010; padding: 76px 64px 38px; }
+.footer-top { display: grid; grid-template-columns: 2.5fr 1fr 1fr 1fr; gap: 56px; margin-bottom: 52px; }
+.f-logo { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: white; letter-spacing:.22em; text-transform: uppercase; margin-bottom: 14px; display: block; }
+.f-logo span { color: var(--rose); }
+.f-desc { font-family: 'Noto Serif TC', serif; font-size: 13px; font-weight: 300; color: rgba(255,255,255,.32); line-height: 1.9; margin-bottom: 22px; }
+.f-line-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 16px; background: var(--line-green); color: white;
+  font-size: 12px; font-weight: 500; text-decoration: none; transition: background .2s;
+}
+.f-line-link:hover { background: var(--line-dark); }
+.f-line-link svg { width: 16px; height: 16px; }
+.f-col-h { font-size: 10px; letter-spacing:.16em; text-transform: uppercase; color: rgba(255,255,255,.28); margin-bottom: 20px; }
+.f-ul { list-style: none; }
+.f-ul li { margin-bottom: 10px; }
+.f-ul li a { text-decoration: none; font-size: 13px; color: rgba(255,255,255,.42); transition: color .2s; }
+.f-ul li a:hover { color: white; }
+.f-bottom { border-top: 1px solid rgba(255,255,255,.05); padding-top: 26px; display: flex; justify-content: space-between; }
+.f-bottom p { font-size: 12px; color: rgba(255,255,255,.2); }
+
+/* ─── REVEAL ANIMATIONS ─── */
+.reveal { opacity:0; transform:translateY(26px); transition:opacity .75s ease,transform .75s ease; }
+.reveal.visible { opacity:1; transform:translateY(0); }
+.rd1 { transition-delay:.1s; } .rd2 { transition-delay:.22s; } .rd3 { transition-delay:.34s; } .rd4 { transition-delay:.46s; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width:1100px) {
+  nav { padding:20px 32px; } nav.scrolled { padding:14px 32px; }
+  .hero-content { padding:130px 32px 100px; } .hero-stats { left:32px; } .hero-scroll-ind { right:32px; }
+  .about,.cta-section,.line-steps { padding:90px 32px; }
+  .line-section { padding:90px 32px; }
+  .line-inner { grid-template-columns:1fr; gap:52px; }
+  .industries { padding:0 32px 90px; }
+  .ind-grid { grid-template-columns:repeat(2,1fr); }
+  .features { padding:90px 32px; } .feat-header { grid-template-columns:1fr; } .feat-grid { grid-template-columns:1fr; }
+  .gallery { padding:90px 32px; }
+  .testimonials { padding:90px 32px; }
+  .steps-grid { grid-template-columns:1fr 1fr; }
+  .step-block:nth-child(2)::after { display:none; }
+  .numbers { grid-template-columns:repeat(2,1fr); }
+  .footer-top { grid-template-columns:1fr 1fr; gap:36px; }
+}
+@media (max-width:768px) {
+  nav .nav-links { display:none; }
+  .hero-bg { grid-template-columns:1fr; } .hero-bg-right { display:none; }
+  .hero-stats { flex-wrap:wrap; gap:28px; }
+  body { cursor:auto; } .cursor,.cursor-ring { display:none; }
+  .gal-header { flex-direction:column; gap:20px; align-items:flex-start; }
+  .numbers { grid-template-columns:1fr 1fr; }
+  .cta-section { grid-template-columns:1fr; }
+  .footer-top { grid-template-columns:1fr; }
+  .steps-grid { grid-template-columns:1fr; }
+  .step-block::after { display:none !important; }
+  .line-mockup { flex-direction:column; align-items:center; }
+  .phone-frame-2 { margin-top:24px; margin-left:0; z-index:0; }
+  .nav-cta-pair { gap:8px; }
+}
+
+/* LINE section chat animation */
+@keyframes msgSlideIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.chat-msg { animation: msgSlideIn .4s ease both; }
+.chat-msg:nth-child(2) { animation-delay:.6s; }
+.chat-msg:nth-child(3) { animation-delay:1.1s; }
+.chat-msg:nth-child(4) { animation-delay:1.6s; }
+.chat-msg:nth-child(5) { animation-delay:2s; }
+.chat-msg:nth-child(6) { animation-delay:2.4s; }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ═══ NAV ═══ -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">AU<span>R</span>A</a>
+  <ul class="nav-links">
+    <li><a href="#industries">適用產業</a></li>
+    <li><a href="#features">功能介紹</a></li>
+    <li><a href="#gallery">作品相簿</a></li>
+    <li><a href="#line-oa">LINE 串接</a></li>
+    <li><a href="#contact">聯繫我們</a></li>
+  </ul>
+  <div class="nav-cta-pair">
+    <a href="#line-oa" class="nav-line-btn">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.365 9.89c.50 0 .906.41.906.91s-.406.91-.906.91H17.79v1.049h1.575c.5 0 .906.41.906.91s-.406.91-.906.91H16.88a.908.908 0 01-.906-.91V9.89c0-.5.406-.91.906-.91h2.485zm-4.928 0c.5 0 .906.41.906.91v3.78a.908.908 0 01-.906.91.908.908 0 01-.906-.91V9.89c0-.5.406-.91.906-.91zm-2.203.91v2.87l-1.89-3.39a.906.906 0 00-.79-.39.908.908 0 00-.906.91v3.78c0 .5.406.91.906.91s.906-.41.906-.91v-2.87l1.89 3.39c.164.27.457.39.79.39a.908.908 0 00.906-.91V9.89c0-.5-.406-.91-.906-.91a.908.908 0 00-.906.91zm-4.31-1.82a.908.908 0 00-.906.91v3.78c0 .5.406.91.906.91h2.485c.5 0 .906-.41.906-.91s-.406-.91-.906-.91H8.83V9.89a.908.908 0 00-.906-.91zM12 2C6.477 2 2 6.145 2 11.25c0 4.077 2.625 7.567 6.35 9.04.234.09.197.218.148.544l-.077.483c-.023.148-.11.58.51.316 6.22-2.894 9.97-7.618 9.97-13.383C22 6.145 17.523 2 12 2z"/></svg>
+      LINE 官方帳號
+    </a>
+    <a href="#contact" class="btn-nav-primary">立即試用</a>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero" id="home">
+  <div class="hero-bg">
+    <div class="hero-bg-left"></div>
+    <div class="hero-bg-right">
+      <img src="https://picsum.photos/seed/aura-hero/900/1100" alt="美業沙龍">
+    </div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">美業數位管理平台</div>
+    <h1 class="hero-title">讓美業<br><span class="accent">更精彩</span><br>更從容</h1>
+    <p class="hero-body">整合預約、會員、業績與行銷工具。<br>從個人工作室到多店連鎖，<br>AURA 為你打造最完整的品牌數位體驗。</p>
+    <div class="hero-cta">
+      <a href="#contact" class="btn-primary">免費開始使用</a>
+      <a href="#features" class="btn-outline">了解功能</a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div><div class="stat-n" data-count="100" data-suffix="+">0</div><div class="stat-l">合作店家</div></div>
+    <div><div class="stat-n" data-count="98" data-suffix="%">0</div><div class="stat-l">客戶滿意度</div></div>
+    <div><div class="stat-n" data-count="5" data-suffix="k+">0</div><div class="stat-l">月處理預約</div></div>
+  </div>
+  <div class="hero-scroll-ind">
+    <div class="scroll-line"></div>
+    <span class="scroll-text">Scroll</span>
+  </div>
+</section>
+
+<!-- ═══ MARQUEE ═══ -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <div class="marquee-item"><span>美髮沙龍</span><span class="marquee-dot"></span></div>
+    <div class="marquee-item"><span>美甲美睫</span><span class="marquee-dot"></span></div>
+    <div class="marquee-item"><span>美容美顏</span><span class="marquee-dot"></span></div>
+    <div class="marquee-item"><span>醫美診所</span><span class="marquee-dot"></span></div>
+    <div class="marquee-item"><span>SPA 按摩</span><span class="marquee-dot"></span></div>
+    <div class="marquee-item"><span>運動瑜伽</span><span class="marquee-dot"></span></div>
+    <div class="marquee-item"><span>寵物美容</span><span class="marquee-dot"></span></div>
+    <div class="marquee-item"><span>整復推拿</span><span class="marquee-dot"></span></div>
+    <div class="marquee-item"><span>美髮沙龍</span><span class="marquee-dot"></span></div>
+    <div class="marquee-item"><span>美甲美睫</span><span class="marquee-dot"></span></div>
+    <div class="marquee-item"><span>美容美顏</span><span class="marquee-dot"></span></div>
+    <div class="marquee-item"><span>醫美診所</span><span class="marquee-dot"></span></div>
+    <div class="marquee-item"><span>SPA 按摩</span><span class="marquee-dot"></span></div>
+    <div class="marquee-item"><span>運動瑜伽</span><span class="marquee-dot"></span></div>
+    <div class="marquee-item"><span>寵物美容</span><span class="marquee-dot"></span></div>
+    <div class="marquee-item"><span>整復推拿</span><span class="marquee-dot"></span></div>
+  </div>
+</div>
+
+<!-- ═══ ABOUT ═══ -->
+<section class="about">
+  <div class="about-img-wrap reveal">
+    <img class="about-img-main" src="https://picsum.photos/seed/aura-about/600/800" alt="美容師">
+    <img class="about-img-accent" src="https://picsum.photos/seed/aura-accent/400/400" alt="">
+    <div class="about-badge">
+      <span class="about-badge-n">5+</span>
+      <span class="about-badge-l">年深耕美業</span>
+    </div>
+  </div>
+  <div>
+    <div class="s-eyebrow reveal">關於 AURA</div>
+    <h2 class="s-h reveal rd1">美業的最佳<br>數位夥伴</h2>
+    <p class="s-p reveal rd2">AURA 深度支援台灣美業生態，我們理解每一位美業工作者的需求。無論你是剛踏入美業的新手，還是管理多家門市的品牌業主，AURA 都能提供最精準、最直覺的數位工具。</p>
+    <p class="s-p reveal rd2">我們不只是一套軟體，更是陪你成長的數位夥伴。持續更新功能、貼近產業脈動，讓你專心做好美業本業。</p>
+    <div class="about-grid reveal rd3">
+      <div class="a-feat"><div class="a-feat-t">智慧預約</div><div class="a-feat-d">24 小時線上預約，自動提醒通知</div></div>
+      <div class="a-feat"><div class="a-feat-t">會員管理</div><div class="a-feat-d">顧客資料一鍵掌握，消費追蹤精準</div></div>
+      <div class="a-feat"><div class="a-feat-t">業績報表</div><div class="a-feat-d">即時數據儀表板，決策更有依據</div></div>
+      <div class="a-feat"><div class="a-feat-t">作品展示</div><div class="a-feat-d">上傳作品一鍵展示，吸引新顧客</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ INDUSTRIES ═══ -->
+<section class="industries" id="industries">
+  <div class="ind-header">
+    <div class="s-eyebrow reveal">適用產業</div>
+    <h2 class="s-h reveal rd1">美業好夥伴，全面支援</h2>
+  </div>
+  <div class="ind-grid">
+    <div class="ind-card reveal rd1"><div class="ind-bg ind-bg-1"></div><div class="ind-overlay"><div class="ind-tag">Hair Salon</div><div class="ind-name">美髮沙龍</div><div class="ind-line"></div><div class="ind-sub">剪染燙造型，完整預約管理與業績追蹤</div></div></div>
+    <div class="ind-card reveal rd2"><div class="ind-bg ind-bg-2"></div><div class="ind-overlay"><div class="ind-tag">Nail &amp; Lash</div><div class="ind-name">美甲美睫</div><div class="ind-line"></div><div class="ind-sub">精細服務項目管理，顧客作品完整紀錄</div></div></div>
+    <div class="ind-card reveal rd3"><div class="ind-bg ind-bg-3"></div><div class="ind-overlay"><div class="ind-tag">Skincare</div><div class="ind-name">美容美顏</div><div class="ind-line"></div><div class="ind-sub">臉部護理療程，顧客膚況追蹤管理</div></div></div>
+    <div class="ind-card reveal rd4"><div class="ind-bg ind-bg-4"></div><div class="ind-overlay"><div class="ind-tag">SPA &amp; Massage</div><div class="ind-name">SPA 按摩</div><div class="ind-line"></div><div class="ind-sub">療程時段安排，多位治療師靈活排班</div></div></div>
+    <div class="ind-card reveal"><div class="ind-bg ind-bg-5"></div><div class="ind-overlay"><div class="ind-tag">Medical Beauty</div><div class="ind-name">醫美診所</div><div class="ind-line"></div><div class="ind-sub">療程管理、顧客回診追蹤一體整合</div></div></div>
+    <div class="ind-card reveal rd1"><div class="ind-bg ind-bg-6"></div><div class="ind-overlay"><div class="ind-tag">Yoga &amp; Fitness</div><div class="ind-name">運動瑜伽</div><div class="ind-line"></div><div class="ind-sub">課程預約，會員堂數與到課率管理</div></div></div>
+    <div class="ind-card reveal rd2"><div class="ind-bg ind-bg-7"></div><div class="ind-overlay"><div class="ind-tag">Pet Grooming</div><div class="ind-name">寵物美容</div><div class="ind-line"></div><div class="ind-sub">毛孩資料管理，美容服務預約安排</div></div></div>
+    <div class="ind-card reveal rd3"><div class="ind-bg ind-bg-8"></div><div class="ind-overlay"><div class="ind-tag">Wellness</div><div class="ind-name">整復推拿</div><div class="ind-line"></div><div class="ind-sub">療程建議，顧客體況長期追蹤記錄</div></div></div>
+  </div>
+</section>
+
+<!-- ═══ FEATURES ═══ -->
+<section class="features" id="features">
+  <div class="feat-header">
+    <div><div class="s-eyebrow reveal">核心功能</div><h2 class="s-h reveal rd1">一個平台<br>所有工具</h2></div>
+    <p class="s-p reveal">AURA 整合美業所需的每一項數位工具，讓你不再需要在多個系統間切換。從預約到行銷，從會員到業績，全部一站搞定。</p>
+  </div>
+  <div class="feat-grid">
+    <div class="feat-block reveal"><div class="feat-n">01</div><div class="feat-title">智慧預約系統</div><p class="feat-desc">線上 24 小時開放預約，即時同步行事曆，自動發送確認通知與提醒，大幅減少爽約率。支援多位員工、多服務項目的彈性時段管理。</p></div>
+    <div class="feat-block reveal rd1"><div class="feat-n">02</div><div class="feat-title">會員 CRM 系統</div><p class="feat-desc">完整紀錄每位顧客的消費歷程、服務偏好與特殊備注。搭配紅利點數、會籍制度與儲值金管理，打造高忠誠度的會員體系。</p></div>
+    <div class="feat-block reveal rd2"><div class="feat-n">03</div><div class="feat-title">業績報表分析</div><p class="feat-desc">即時業績儀表板，掌握每日、每週、每月的營收趨勢。員工業績比較、服務熱門排行、顧客回訪分析，讓每個決策都有數據支撐。</p></div>
+    <div class="feat-block reveal"><div class="feat-n">04</div><div class="feat-title">作品相簿展示</div><p class="feat-desc">後台直接上傳作品照片，分類整理後自動展示於前端品牌頁面。讓潛在顧客在預約前就被你的作品打動，轉換更高效。</p></div>
+    <div class="feat-block reveal rd1"><div class="feat-n">05</div><div class="feat-title">LINE 官方帳號串接</div><p class="feat-desc">深度整合 LINE 官方帳號，預約確認、回訪提醒、行銷活動訊息，全部透過 LINE 自動發送。顧客零學習成本，互動率提升數倍。</p></div>
+    <div class="feat-block reveal rd2"><div class="feat-n">06</div><div class="feat-title">多店連鎖管理</div><p class="feat-desc">單一後台管理多家門市，統一查看各店業績、人員排班與顧客資料。品牌標準化輕鬆落地，擴店過程更有把握。</p></div>
+  </div>
+</section>
+
+<!-- ═══ GALLERY ═══ -->
+<section class="gallery" id="gallery">
+  <div class="gal-header">
+    <div><div class="s-eyebrow reveal">作品展示</div><h2 class="s-h reveal rd1">展示你的精彩</h2></div>
+    <div class="gal-filter reveal">
+      <button class="fp active" data-filter="all">全部</button>
+      <button class="fp" data-filter="hair">美髮</button>
+      <button class="fp" data-filter="nail">美甲</button>
+      <button class="fp" data-filter="spa">美容 SPA</button>
+    </div>
+  </div>
+  <div class="gal-masonry reveal">
+    <div class="gi" data-cat="hair"><img class="gi-img" src="https://picsum.photos/seed/g01/900/700" alt=""><div class="gi-ov"><span class="gi-tag">美髮</span></div></div>
+    <div class="gi" data-cat="nail"><img class="gi-img" src="https://picsum.photos/seed/g02/600/450" alt=""><div class="gi-ov"><span class="gi-tag">美甲</span></div></div>
+    <div class="gi" data-cat="spa"><img class="gi-img" src="https://picsum.photos/seed/g03/500/400" alt=""><div class="gi-ov"><span class="gi-tag">美容</span></div></div>
+    <div class="gi" data-cat="hair"><img class="gi-img" src="https://picsum.photos/seed/g04/700/550" alt=""><div class="gi-ov"><span class="gi-tag">美髮</span></div></div>
+    <div class="gi" data-cat="spa"><img class="gi-img" src="https://picsum.photos/seed/g05/600/500" alt=""><div class="gi-ov"><span class="gi-tag">SPA</span></div></div>
+    <div class="gi" data-cat="nail"><img class="gi-img" src="https://picsum.photos/seed/g06/700/600" alt=""><div class="gi-ov"><span class="gi-tag">美甲</span></div></div>
+    <div class="gi" data-cat="hair"><img class="gi-img" src="https://picsum.photos/seed/g07/700/700" alt=""><div class="gi-ov"><span class="gi-tag">美髮</span></div></div>
+    <div class="gi" data-cat="spa"><img class="gi-img" src="https://picsum.photos/seed/g08/600/550" alt=""><div class="gi-ov"><span class="gi-tag">醫美</span></div></div>
+    <div class="gi" data-cat="hair"><img class="gi-img" src="https://picsum.photos/seed/g09/700/600" alt=""><div class="gi-ov"><span class="gi-tag">美髮</span></div></div>
+    <div class="gi" data-cat="spa"><img class="gi-img" src="https://picsum.photos/seed/g10/800/600" alt=""><div class="gi-ov"><span class="gi-tag">美容</span></div></div>
+  </div>
+</section>
+
+<!-- ═══ LINE OA SECTION ═══ -->
+<section class="line-section" id="line-oa">
+  <div class="line-inner">
+    <div class="line-text">
+      <div class="s-eyebrow reveal">LINE 官方帳號串接</div>
+      <h2 class="s-h reveal rd1">讓顧客<br>在 LINE 上<br>完成一切</h2>
+      <p class="s-p reveal rd2">AURA 深度整合 LINE 官方帳號。顧客用最熟悉的工具與你互動，從預約確認、回訪提醒到行銷活動，全部透過 LINE 自動觸達，互動率遠高於簡訊與 Email。</p>
+
+      <div class="line-features reveal rd3">
+        <div class="lf-item">
+          <div class="lf-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          </div>
+          <div><div class="lf-title">預約確認自動通知</div><div class="lf-desc">顧客完成預約後，系統自動透過 LINE 發送確認訊息與預約詳情，並在預約前 24 小時提醒。</div></div>
+        </div>
+        <div class="lf-item">
+          <div class="lf-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div><div class="lf-title">圖文訊息行銷推播</div><div class="lf-desc">設計精美的 LINE 圖文訊息，針對不同會員分群推播專屬優惠、新服務上線通知，點擊率高達 60% 以上。</div></div>
+        </div>
+        <div class="lf-item">
+          <div class="lf-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          </div>
+          <div><div class="lf-title">Rich Menu 功能選單</div><div class="lf-desc">自訂 LINE 下方功能選單，讓顧客一鍵快速預約、查看點數、瀏覽服務項目，體驗媲美原生 App。</div></div>
+        </div>
+        <div class="lf-item">
+          <div class="lf-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <div><div class="lf-title">回訪提醒自動化</div><div class="lf-desc">根據每位顧客的服務週期，自動在最佳時機發送回訪邀約，讓顧客持續回來光顧。</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phone mockups -->
+    <div class="line-mockup reveal rd2">
+      <!-- Main phone: Chat UI -->
+      <div class="phone-frame">
+        <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+        <div class="line-chat-ui">
+          <div class="line-header">
+            <div class="line-header-avatar">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.365 9.89c.50 0 .906.41.906.91s-.406.91-.906.91H17.79v1.049h1.575c.5 0 .906.41.906.91s-.406.91-.906.91H16.88a.908.908 0 01-.906-.91V9.89c0-.5.406-.91.906-.91h2.485zm-4.928 0c.5 0 .906.41.906.91v3.78a.908.908 0 01-.906.91.908.908 0 01-.906-.91V9.89c0-.5.406-.91.906-.91zm-2.203.91v2.87l-1.89-3.39a.906.906 0 00-.79-.39.908.908 0 00-.906.91v3.78c0 .5.406.91.906.91s.906-.41.906-.91v-2.87l1.89 3.39c.164.27.457.39.79.39a.908.908 0 00.906-.91V9.89c0-.5-.406-.91-.906-.91a.908.908 0 00-.906.91zm-4.31-1.82a.908.908 0 00-.906.91v3.78c0 .5.406.91.906.91h2.485c.5 0 .906-.41.906-.91s-.406-.91-.906-.91H8.83V9.89a.908.908 0 00-.906-.91zM12 2C6.477 2 2 6.145 2 11.25c0 4.077 2.625 7.567 6.35 9.04.234.09.197.218.148.544l-.077.483c-.023.148-.11.58.51.316 6.22-2.894 9.97-7.618 9.97-13.383C22 6.145 17.523 2 12 2z"/></svg>
+            </div>
+            <div class="line-header-info">
+              <div class="line-header-name">AURA 美業</div>
+              <div class="line-header-status">官方帳號</div>
+            </div>
+          </div>
+
+          <div class="chat-body">
+            <div class="chat-date">2026年2月22日</div>
+
+            <div class="chat-msg">
+              <div class="chat-avatar">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M19.365 9.89c.50 0 .906.41.906.91s-.406.91-.906.91H17.79v1.049h1.575c.5 0 .906.41.906.91s-.406.91-.906.91H16.88a.908.908 0 01-.906-.91V9.89c0-.5.406-.91.906-.91h2.485zm-4.928 0c.5 0 .906.41.906.91v3.78a.908.908 0 01-.906.91.908.908 0 01-.906-.91V9.89c0-.5.406-.91.906-.91zm-2.203.91v2.87l-1.89-3.39a.906.906 0 00-.79-.39.908.908 0 00-.906.91v3.78c0 .5.406.91.906.91s.906-.41.906-.91v-2.87l1.89 3.39c.164.27.457.39.79.39a.908.908 0 00.906-.91V9.89c0-.5-.406-.91-.906-.91a.908.908 0 00-.906.91zm-4.31-1.82a.908.908 0 00-.906.91v3.78c0 .5.406.91.906.91h2.485c.5 0 .906-.41.906-.91s-.406-.91-.906-.91H8.83V9.89a.908.908 0 00-.906-.91zM12 2C6.477 2 2 6.145 2 11.25c0 4.077 2.625 7.567 6.35 9.04.234.09.197.218.148.544l-.077.483c-.023.148-.11.58.51.316 6.22-2.894 9.97-7.618 9.97-13.383C22 6.145 17.523 2 12 2z"/></svg>
+              </div>
+              <div>
+                <div class="chat-bubble system">您好，林雅芸！感謝預約 ✨<br>以下是您的預約詳情：<br><b>2/25 (三) 下午 2:00</b><br>服務：凝膠美甲<br>設計師：小芳</div>
+              </div>
+              <span class="chat-time">14:02</span>
+            </div>
+
+            <div class="chat-msg me">
+              <div class="chat-bubble">謝謝！我會準時到</div>
+              <span class="chat-time">14:05</span>
+            </div>
+
+            <div class="chat-msg">
+              <div class="chat-avatar">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M19.365 9.89c.50 0 .906.41.906.91s-.406.91-.906.91H17.79v1.049h1.575c.5 0 .906.41.906.91s-.406.91-.906.91H16.88a.908.908 0 01-.906-.91V9.89c0-.5.406-.91.906-.91h2.485zm-4.928 0c.5 0 .906.41.906.91v3.78a.908.908 0 01-.906.91.908.908 0 01-.906-.91V9.89c0-.5.406-.91.906-.91zm-2.203.91v2.87l-1.89-3.39a.906.906 0 00-.79-.39.908.908 0 00-.906.91v3.78c0 .5.406.91.906.91s.906-.41.906-.91v-2.87l1.89 3.39c.164.27.457.39.79.39a.908.908 0 00.906-.91V9.89c0-.5-.406-.91-.906-.91a.908.908 0 00-.906.91zm-4.31-1.82a.908.908 0 00-.906.91v3.78c0 .5.406.91.906.91h2.485c.5 0 .906-.41.906-.91s-.406-.91-.906-.91H8.83V9.89a.908.908 0 00-.906-.91zM12 2C6.477 2 2 6.145 2 11.25c0 4.077 2.625 7.567 6.35 9.04.234.09.197.218.148.544l-.077.483c-.023.148-.11.58.51.316 6.22-2.894 9.97-7.618 9.97-13.383C22 6.145 17.523 2 12 2z"/></svg>
+              </div>
+              <div>
+                <div class="line-richm">
+                  <div class="richm-img">AURA</div>
+                  <div class="richm-body">
+                    <div class="richm-title">二月限定優惠</div>
+                    <div class="richm-sub">護手療程 + 美甲 8 折優惠，限時 3 天！</div>
+                  </div>
+                  <div class="richm-btns">
+                    <button class="richm-btn">立即預約</button>
+                    <button class="richm-btn">了解詳情</button>
+                  </div>
+                </div>
+              </div>
+              <span class="chat-time">14:06</span>
+            </div>
+
+            <div class="chat-msg">
+              <div class="chat-avatar"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M19.365 9.89c.50 0 .906.41.906.91s-.406.91-.906.91H17.79v1.049h1.575c.5 0 .906.41.906.91s-.406.91-.906.91H16.88a.908.908 0 01-.906-.91V9.89c0-.5.406-.91.906-.91h2.485zm-4.928 0c.5 0 .906.41.906.91v3.78a.908.908 0 01-.906.91.908.908 0 01-.906-.91V9.89c0-.5.406-.91.906-.91zm-2.203.91v2.87l-1.89-3.39a.906.906 0 00-.79-.39.908.908 0 00-.906.91v3.78c0 .5.406.91.906.91s.906-.41.906-.91v-2.87l1.89 3.39c.164.27.457.39.79.39a.908.908 0 00.906-.91V9.89c0-.5-.406-.91-.906-.91a.908.908 0 00-.906.91zm-4.31-1.82a.908.908 0 00-.906.91v3.78c0 .5.406.91.906.91h2.485c.5 0 .906-.41.906-.91s-.406-.91-.906-.91H8.83V9.89a.908.908 0 00-.906-.91zM12 2C6.477 2 2 6.145 2 11.25c0 4.077 2.625 7.567 6.35 9.04.234.09.197.218.148.544l-.077.483c-.023.148-.11.58.51.316 6.22-2.894 9.97-7.618 9.97-13.383C22 6.145 17.523 2 12 2z"/></svg></div>
+              <div><div class="line-typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>
+            </div>
+          </div>
+
+          <!-- Rich Menu Bar -->
+          <div style="background:white; border-top:1px solid #eee;">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#f0f0f0;">
+              <div style="background:white;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#06C755" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                <span style="font-size:10px;color:#333;font-weight:500;">立即預約</span>
+              </div>
+              <div style="background:white;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#06C755" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                <span style="font-size:10px;color:#333;font-weight:500;">我的點數</span>
+              </div>
+              <div style="background:white;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#06C755" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+                <span style="font-size:10px;color:#333;font-weight:500;">服務項目</span>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#f0f0f0;">
+              <div style="background:white;padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#06C755" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                <span style="font-size:10px;color:#333;font-weight:500;">作品相簿</span>
+              </div>
+              <div style="background:white;padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#06C755" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                <span style="font-size:10px;color:#333;font-weight:500;">優惠活動</span>
+              </div>
+              <div style="background:white;padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#06C755" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span style="font-size:10px;color:#333;font-weight:500;">門市資訊</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ LINE STEPS ═══ -->
+<section class="line-steps">
+  <div class="s-eyebrow reveal">串接流程</div>
+  <h2 class="s-h reveal rd1">4 步驟完成<br>LINE 官方帳號串接</h2>
+  <div class="steps-grid">
+    <div class="step-block reveal">
+      <div class="step-num">01</div>
+      <div class="step-title">申請 LINE 官方帳號</div>
+      <p class="step-desc">前往 LINE 官方帳號管理後台申請帳號，免費方案即可開始使用基本功能。</p>
+    </div>
+    <div class="step-block reveal rd1">
+      <div class="step-num">02</div>
+      <div class="step-title">取得 Channel Token</div>
+      <p class="step-desc">在 LINE Developers Console 建立 Messaging API Channel，取得 Access Token 與 Channel Secret。</p>
+    </div>
+    <div class="step-block reveal rd2">
+      <div class="step-num">03</div>
+      <div class="step-title">在 AURA 後台設定</div>
+      <p class="step-desc">將 Token 貼入 AURA 後台的「LINE 串接」設定頁，系統自動完成 Webhook 配置。</p>
+    </div>
+    <div class="step-block reveal rd3">
+      <div class="step-num">04</div>
+      <div class="step-title">設計 Rich Menu 啟用</div>
+      <p class="step-desc">使用 AURA 內建的 Rich Menu 編輯器設計功能選單，一鍵發布，顧客馬上看到新介面。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TESTIMONIALS ═══ -->
+<section class="testimonials">
+  <div class="test-header">
+    <div class="s-eyebrow reveal">客戶評價</div>
+    <h2 class="s-h reveal rd1">他們都選擇 AURA</h2>
+  </div>
+  <div class="test-track-w">
+    <div class="test-track">
+      <div class="tc"><p class="tq">導入 AURA 之後，預約爽約率從 18% 降到 3%。LINE 自動提醒功能讓顧客不會忘記預約，我也不用一直手動發訊息了。</p><div class="ta"><div class="tav">陳</div><div><div class="tn">陳雅琳</div><div class="ts">Bloom Hair Studio · 美髮沙龍</div></div></div></div>
+      <div class="tc"><p class="tq">LINE Rich Menu 設定好之後，顧客直接從選單預約，完全不用解釋怎麼用。現在每天都有新顧客透過 LINE 預約進來。</p><div class="ta"><div class="tav">林</div><div><div class="tn">林芷薇</div><div class="ts">Petal Nail Art · 美甲工作室</div></div></div></div>
+      <div class="tc"><p class="tq">三間門市用同一套系統管理，業績報表一目了然。以前用 Excel 記帳要花一整天，現在五分鐘就搞定了，省下好多時間。</p><div class="ta"><div class="tav">黃</div><div><div class="tn">黃建宏</div><div class="ts">Zen Body · SPA 連鎖</div></div></div></div>
+      <div class="tc"><p class="tq">顧客的消費記錄、喜好都在系統裡，每次服務前先查一下，顧客都覺得被記住了，回訪率明顯提升很多。</p><div class="ta"><div class="tav">許</div><div><div class="tn">許美惠</div><div class="ts">Glow Spa · 美容美顏</div></div></div></div>
+      <div class="tc"><p class="tq">堂數管理搭配 LINE 到期提醒後，學員續費率從 60% 提升到 85%。以前這些都要手動處理，現在全自動真的差很多。</p><div class="ta"><div class="tav">吳</div><div><div class="tn">吳靜雯</div><div class="ts">Serenity Yoga · 瑜伽教室</div></div></div></div>
+      <!-- duplicate -->
+      <div class="tc"><p class="tq">導入 AURA 之後，預約爽約率從 18% 降到 3%。LINE 自動提醒功能讓顧客不會忘記預約，我也不用一直手動發訊息了。</p><div class="ta"><div class="tav">陳</div><div><div class="tn">陳雅琳</div><div class="ts">Bloom Hair Studio · 美髮沙龍</div></div></div></div>
+      <div class="tc"><p class="tq">LINE Rich Menu 設定好之後，顧客直接從選單預約，完全不用解釋怎麼用。現在每天都有新顧客透過 LINE 預約進來。</p><div class="ta"><div class="tav">林</div><div><div class="tn">林芷薇</div><div class="ts">Petal Nail Art · 美甲工作室</div></div></div></div>
+      <div class="tc"><p class="tq">三間門市用同一套系統管理，業績報表一目了然。以前用 Excel 記帳要花一整天，現在五分鐘就搞定了，省下好多時間。</p><div class="ta"><div class="tav">黃</div><div><div class="tn">黃建宏</div><div class="ts">Zen Body · SPA 連鎖</div></div></div></div>
+      <div class="tc"><p class="tq">顧客的消費記錄、喜好都在系統裡，每次服務前先查一下，顧客都覺得被記住了，回訪率明顯提升很多。</p><div class="ta"><div class="tav">許</div><div><div class="tn">許美惠</div><div class="ts">Glow Spa · 美容美顏</div></div></div></div>
+      <div class="tc"><p class="tq">堂數管理搭配 LINE 到期提醒後，學員續費率從 60% 提升到 85%。以前這些都要手動處理，現在全自動真的差很多。</p><div class="ta"><div class="tav">吳</div><div><div class="tn">吳靜雯</div><div class="ts">Serenity Yoga · 瑜伽教室</div></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ NUMBERS ═══ -->
+<div class="numbers">
+  <div class="num-item reveal"><span class="num-n" data-count="100" data-suffix="+">0</span><span class="num-l">合作店家</span></div>
+  <div class="num-item reveal rd1"><span class="num-n" data-count="5" data-suffix="k+">0</span><span class="num-l">每月處理預約</span></div>
+  <div class="num-item reveal rd2"><span class="num-n" data-count="98" data-suffix="%">0</span><span class="num-l">客戶滿意度</span></div>
+  <div class="num-item reveal rd3"><span class="num-n" data-count="5" data-suffix=" 年">0</span><span class="num-l">深耕美業</span></div>
+</div>
+
+<!-- ═══ CTA ═══ -->
+<section class="cta-section" id="contact">
+  <div>
+    <div class="s-eyebrow reveal">立即開始</div>
+    <h2 class="s-h reveal rd1">準備好讓<br>你的美業<br>數位升級了嗎？</h2>
+    <p class="s-p reveal rd2">30 天免費試用，不需信用卡，隨時可以取消。超過 100 家美業店家的首選，現在加入讓你的事業更上一層樓。</p>
+  </div>
+  <div class="cta-form reveal rd1">
+    <div class="cta-form-title">免費試用申請</div>
+    <div class="ff"><input type="text" placeholder="你的姓名 *"></div>
+    <div class="ff"><input type="text" placeholder="店家名稱 *"></div>
+    <div class="ff"><input type="tel" placeholder="聯絡電話 *"></div>
+    <div class="ff">
+      <select><option value="" disabled selected>選擇產業類別 *</option>
+        <option>美髮沙龍</option><option>美容美顏</option><option>美甲美睫</option>
+        <option>醫美診所</option><option>SPA 按摩</option><option>運動瑜伽</option>
+        <option>寵物美容</option><option>整復推拿</option>
+      </select>
+    </div>
+    <button class="btn-submit" onclick="handleSubmit(this)">立即申請免費試用</button>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <span class="f-logo">AU<span>R</span>A</span>
+      <p class="f-desc">AURA 美業數位管理平台<br>讓每個美的工作者，都能擁有最強大的數位工具，專心創造美好。</p>
+      <a href="#line-oa" class="f-line-link">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.365 9.89c.50 0 .906.41.906.91s-.406.91-.906.91H17.79v1.049h1.575c.5 0 .906.41.906.91s-.406.91-.906.91H16.88a.908.908 0 01-.906-.91V9.89c0-.5.406-.91.906-.91h2.485zm-4.928 0c.5 0 .906.41.906.91v3.78a.908.908 0 01-.906.91.908.908 0 01-.906-.91V9.89c0-.5.406-.91.906-.91zm-2.203.91v2.87l-1.89-3.39a.906.906 0 00-.79-.39.908.908 0 00-.906.91v3.78c0 .5.406.91.906.91s.906-.41.906-.91v-2.87l1.89 3.39c.164.27.457.39.79.39a.908.908 0 00.906-.91V9.89c0-.5-.406-.91-.906-.91a.908.908 0 00-.906.91zm-4.31-1.82a.908.908 0 00-.906.91v3.78c0 .5.406.91.906.91h2.485c.5 0 .906-.41.906-.91s-.406-.91-.906-.91H8.83V9.89a.908.908 0 00-.906-.91zM12 2C6.477 2 2 6.145 2 11.25c0 4.077 2.625 7.567 6.35 9.04.234.09.197.218.148.544l-.077.483c-.023.148-.11.58.51.316 6.22-2.894 9.97-7.618 9.97-13.383C22 6.145 17.523 2 12 2z"/></svg>
+        了解 LINE 串接
+      </a>
+    </div>
+    <div><div class="f-col-h">功能介紹</div><ul class="f-ul"><li><a href="#">預約管理</a></li><li><a href="#">會員系統</a></li><li><a href="#">業績報表</a></li><li><a href="#">行銷工具</a></li><li><a href="#line-oa">LINE 串接</a></li></ul></div>
+    <div><div class="f-col-h">適用產業</div><ul class="f-ul"><li><a href="#">美髮沙龍</a></li><li><a href="#">美甲美睫</a></li><li><a href="#">SPA 按摩</a></li><li><a href="#">醫美診所</a></li><li><a href="#">運動瑜伽</a></li></ul></div>
+    <div><div class="f-col-h">公司資訊</div><ul class="f-ul"><li><a href="#">關於我們</a></li><li><a href="#">使用條款</a></li><li><a href="#">隱私政策</a></li><li><a href="#">聯繫我們</a></li><li><a href="admin.html">後台登入</a></li></ul></div>
+  </div>
+  <div class="f-bottom">
+    <p>© 2026 AURA. All rights reserved.</p>
+    <p>台灣美業數位轉型首選</p>
+  </div>
+</footer>
+
+<script>
+// ── Cursor ──
+const cur = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; cur.style.left=mx+'px'; cur.style.top=my+'px'; });
+(function loop(){rx+=(mx-rx)*.13;ry+=(my-ry)*.13;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(loop);})();
+document.querySelectorAll('a,button,.ind-card,.gi,.feat-block,.tc,.lf-item').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{
+    cur.classList.add('expand'); ring.classList.add('expand');
+    const isLine = el.closest('.line-section,.line-steps,.nav-line-btn');
+    if(isLine){ cur.classList.add('line-mode'); ring.classList.add('line-mode'); }
+  });
+  el.addEventListener('mouseleave',()=>{ cur.classList.remove('expand','line-mode'); ring.classList.remove('expand','line-mode'); });
+});
+
+// ── Navbar ──
+const nav = document.getElementById('navbar');
+window.addEventListener('scroll',()=>{ nav.classList.toggle('scrolled',window.scrollY>50); });
+
+// ── Reveal ──
+const ro = new IntersectionObserver(e=>e.forEach(x=>{ if(x.isIntersecting) x.target.classList.add('visible'); }),{threshold:.07,rootMargin:'0px 0px -36px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+
+// ── Count up ──
+function countUp(el,target,suffix){
+  let v=0; const step=target/70;
+  const t=setInterval(()=>{ v=Math.min(v+step,target); el.textContent=Math.floor(v)+suffix; if(v>=target)clearInterval(t); },22);
+}
+const co=new IntersectionObserver(e=>e.forEach(x=>{
+  if(x.isIntersecting){ countUp(x.target,parseInt(x.target.dataset.count),x.target.dataset.suffix||''); co.unobserve(x.target); }
+}),{threshold:.5});
+document.querySelectorAll('[data-count]').forEach(el=>co.observe(el));
+
+// ── Gallery filter ──
+document.querySelectorAll('.fp').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.fp').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
+    const f=btn.dataset.filter;
+    document.querySelectorAll('.gi').forEach((item,i)=>{
+      const show=f==='all'||item.dataset.cat===f;
+      item.style.transition=`opacity .4s ${i*.04}s, transform .4s ${i*.04}s`;
+      item.style.opacity=show?'1':'.1'; item.style.transform=show?'scale(1)':'scale(.97)';
+    });
+  });
+});
+
+// ── Hero parallax ──
+window.addEventListener('scroll',()=>{
+  const img=document.querySelector('.hero-bg-right img');
+  if(img&&window.scrollY<window.innerHeight) img.style.transform=`scale(1.06) translateY(${window.scrollY*.12}px)`;
+});
+
+// ── Form ──
+function handleSubmit(btn){
+  btn.textContent='送出中...'; btn.style.background='#7A7570'; btn.style.pointerEvents='none';
+  setTimeout(()=>{ btn.textContent='已成功送出！我們將盡快聯繫你'; btn.style.background='#7DAE81'; },1300);
+}
+</script>
+</body>
+</html>
