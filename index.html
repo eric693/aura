@@ -5,6 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AURA — 美業數位管理平台</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Noto+Serif+TC:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<!-- ══════════════════════════════════════
+  🔧 Firebase 設定 — 與 admin.html 填一樣的值
+  ══════════════════════════════════════ -->
+<script>
+  window.AURA_CONFIG = {
+    FIREBASE_API_KEY:     'YOUR_FIREBASE_API_KEY',
+    FIREBASE_AUTH_DOMAIN: 'YOUR_PROJECT_ID.firebaseapp.com',
+    FIREBASE_PROJECT_ID:  'YOUR_PROJECT_ID',
+    FIREBASE_APP_ID:      'YOUR_FIREBASE_APP_ID',
+  };
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -95,71 +109,111 @@ nav.scrolled {
 .btn-nav-primary:hover { background: #aa6268; }
 
 /* ─── HERO ─── */
-.hero { min-height: 100vh; position: relative; overflow: hidden; display: flex; align-items: center; }
-.hero-bg { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 1fr; }
-.hero-bg-left { background: var(--cream); }
-.hero-bg-right { position: relative; overflow: hidden; }
-.hero-bg-right img {
-  width: 100%; height: 100%; object-fit: cover;
-  filter: brightness(.82) saturate(.88);
-  animation: heroZoom 14s ease-in-out infinite alternate;
+.hero {
+  min-height: 100vh; position: relative; overflow: hidden;
+  display: flex; align-items: center;
 }
-@keyframes heroZoom { from { transform: scale(1.04); } to { transform: scale(1.11); } }
+.hero-bg { position: absolute; inset: 0; }
+.hero-bg-img {
+  position: absolute; inset: 0;
+  background: url('https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1600&q=80&fit=crop&crop=center') center/cover no-repeat;
+  /* CSS fallback if Unsplash blocked */
+  background-color: #2A1E1A;
+  transform: scale(1.05);
+  animation: heroZoom 16s ease-in-out infinite alternate;
+  filter: brightness(.55) saturate(.75);
+}
+.hero-bg-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    105deg,
+    rgba(15,12,10,.90) 0%,
+    rgba(15,12,10,.75) 38%,
+    rgba(15,12,10,.30) 65%,
+    rgba(15,12,10,.10) 100%
+  );
+}
+@keyframes heroZoom { from{transform:scale(1.0)} to{transform:scale(1.1)} }
 
-.hero-content { position: relative; z-index: 10; padding: 140px 64px 100px; max-width: 600px; }
+.hero-content {
+  position: relative; z-index: 10;
+  padding: 160px 96px 120px; max-width: 680px;
+}
 .hero-eyebrow {
   display: inline-flex; align-items: center; gap: 10px;
-  font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
-  color: var(--rose); margin-bottom: 34px;
+  font-size: 11px; letter-spacing:.18em; text-transform: uppercase;
+  color: var(--rose2); margin-bottom: 34px;
   opacity:0; animation: fadeUp .8s .2s ease forwards;
 }
-.hero-eyebrow::before { content:''; display:block; width:28px; height:1px; background:var(--rose); }
+.hero-eyebrow::before { content:''; display:block; width:28px; height:1px; background:var(--rose2); }
 .hero-title {
   font-family: 'Playfair Display', serif;
-  font-size: clamp(52px,5.5vw,82px); font-weight: 700; line-height: 1.07;
-  color: var(--charcoal); margin-bottom: 26px;
+  font-size: clamp(56px,6vw,90px); font-weight: 700; line-height: 1.05;
+  color: white; margin-bottom: 28px;
   opacity:0; animation: fadeUp .9s .35s ease forwards;
 }
-.hero-title .accent { color: var(--rose); }
+.hero-title .accent { color: var(--rose2); }
 .hero-body {
-  font-family: 'Noto Serif TC', serif; font-size: 16px; font-weight: 300;
-  color: var(--mid); line-height: 1.92; max-width: 400px; margin-bottom: 46px;
+  font-family: 'Noto Serif TC', serif; font-size: 17px; font-weight: 300;
+  color: rgba(255,255,255,.62); line-height: 1.95; max-width: 440px; margin-bottom: 50px;
   opacity:0; animation: fadeUp .9s .5s ease forwards;
 }
 .hero-cta { display: flex; gap: 14px; align-items: center; opacity:0; animation: fadeUp .9s .65s ease forwards; }
 .btn-primary {
-  padding: 15px 38px; background: var(--charcoal); color: white;
+  padding: 16px 40px; background: var(--rose); color: white;
   font-family: 'DM Sans', sans-serif; font-size: 13px; letter-spacing:.1em;
   border: none; cursor: none; text-decoration: none; transition: background .3s; display:inline-block;
 }
-.btn-primary:hover { background: var(--rose); }
+.btn-primary:hover { background: #aa6268; }
 .btn-outline {
-  padding: 14px 34px; background: transparent; color: var(--charcoal);
+  padding: 15px 34px; background: transparent; color: rgba(255,255,255,.8);
   font-family: 'DM Sans', sans-serif; font-size: 13px; letter-spacing:.1em;
-  border: 1px solid rgba(26,25,23,.26); cursor: none; text-decoration: none; transition: all .3s; display:inline-block;
+  border: 1px solid rgba(255,255,255,.28); cursor: none; text-decoration: none; transition: all .3s; display:inline-block;
 }
-.btn-outline:hover { border-color: var(--rose); color: var(--rose); }
+.btn-outline:hover { border-color: var(--rose2); color: var(--rose2); }
 
 .hero-stats {
-  position: absolute; bottom: 60px; left: 64px; z-index: 10;
-  display: flex; gap: 52px;
+  position: absolute; bottom: 60px; left: 96px; z-index: 10;
+  display: flex; gap: 56px;
   opacity:0; animation: fadeUp .9s .8s ease forwards;
 }
-.stat-n { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 500; color: var(--charcoal); line-height: 1; }
-.stat-l { font-size: 11px; letter-spacing:.1em; text-transform: uppercase; color: var(--light); margin-top: 4px; }
+.stat-n { font-family: 'Playfair Display', serif; font-size: 38px; font-weight: 500; color: white; line-height: 1; }
+.stat-l { font-size: 11px; letter-spacing:.1em; text-transform: uppercase; color: rgba(255,255,255,.38); margin-top: 5px; }
+
+/* Floating data card */
+.hero-float-wrap {
+  position: absolute; right: 72px; bottom: 80px; z-index: 10;
+  display: flex; flex-direction: column; gap: 12px; align-items: flex-end;
+  opacity:0; animation: fadeIn 1s .9s ease forwards;
+}
+.hero-float-card {
+  background: rgba(255,255,255,.09); backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.14);
+  padding: 20px 26px; width: 196px;
+}
+.hero-float-label { font-size: 10px; letter-spacing:.14em; text-transform:uppercase; color:rgba(255,255,255,.4); margin-bottom: 6px; }
+.hero-float-val { font-family:'Playfair Display',serif; font-size:30px; font-weight:500; color:white; line-height:1; }
+.hero-float-sub { font-size:11px; color:var(--rose2); margin-top:4px; }
+.hero-float-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(193,123,127,.82); backdrop-filter: blur(10px);
+  padding: 9px 16px; font-size: 12px; color: white; letter-spacing:.04em;
+}
+.hero-float-pill::before { content:''; width:6px; height:6px; border-radius:50%; background:white; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(.55)} }
 
 .hero-scroll-ind {
-  position: absolute; right: 64px; bottom: 60px; z-index: 10;
+  position: absolute; right: 42px; top: 50%; transform: translateY(-50%); z-index: 10;
   display: flex; flex-direction: column; align-items: center; gap: 10px;
   opacity:0; animation: fadeIn 1s 1.2s ease forwards;
 }
 .scroll-line {
   width: 1px; height: 60px;
-  background: linear-gradient(to bottom, var(--rose), transparent);
+  background: linear-gradient(to bottom, rgba(255,255,255,.45), transparent);
   animation: scrollPulse 2s ease-in-out infinite;
 }
-@keyframes scrollPulse { 0%,100%{opacity:1;transform:scaleY(1);transform-origin:top;} 50%{opacity:.3;transform:scaleY(.5);transform-origin:top;} }
-.scroll-text { font-size: 10px; letter-spacing:.15em; text-transform: uppercase; color: var(--light); writing-mode: vertical-rl; }
+@keyframes scrollPulse { 0%,100%{opacity:1;transform:scaleY(1);transform-origin:top;} 50%{opacity:.2;transform:scaleY(.4);transform-origin:top;} }
+.scroll-text { font-size: 10px; letter-spacing:.18em; text-transform: uppercase; color: rgba(255,255,255,.28); writing-mode: vertical-rl; }
 
 /* ─── MARQUEE ─── */
 .marquee-wrap { overflow: hidden; background: var(--charcoal); padding: 14px 0; }
@@ -202,14 +256,39 @@ nav.scrolled {
   filter: brightness(.72) saturate(.85);
 }
 .ind-card:hover .ind-bg { transform: scale(1.08); filter: brightness(.58) saturate(.9); }
-.ind-bg-1 { background-image: url('https://picsum.photos/seed/hairsalon/400/550'); }
-.ind-bg-2 { background-image: url('https://picsum.photos/seed/nailart/400/550'); }
-.ind-bg-3 { background-image: url('https://picsum.photos/seed/skincare/400/550'); }
-.ind-bg-4 { background-image: url('https://picsum.photos/seed/spa1/400/550'); }
-.ind-bg-5 { background-image: url('https://picsum.photos/seed/medicalbty/400/550'); }
-.ind-bg-6 { background-image: url('https://picsum.photos/seed/yoga1/400/550'); }
-.ind-bg-7 { background-image: url('https://picsum.photos/seed/petgroom/400/550'); }
-.ind-bg-8 { background-image: url('https://picsum.photos/seed/wellness1/400/550'); }
+/* Industry card backgrounds — Unsplash 嘗試載入，CSS 漸層為 fallback */
+.ind-bg-1 {
+  background: linear-gradient(160deg,#5C3A3A 0%,#3D2020 100%);
+  background-image: url('https://images.unsplash.com/photo-1562322140-8baeececf3df?w=500&q=75&fit=crop&crop=center');
+}
+.ind-bg-2 {
+  background: linear-gradient(160deg,#3A2E4A 0%,#2A1E38 100%);
+  background-image: url('https://images.unsplash.com/photo-1604654894610-df63bc536371?w=500&q=75&fit=crop&crop=center');
+}
+.ind-bg-3 {
+  background: linear-gradient(160deg,#2E4A3A 0%,#1E3228 100%);
+  background-image: url('https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=500&q=75&fit=crop&crop=center');
+}
+.ind-bg-4 {
+  background: linear-gradient(160deg,#4A3A2E 0%,#32281E 100%);
+  background-image: url('https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=500&q=75&fit=crop&crop=center');
+}
+.ind-bg-5 {
+  background: linear-gradient(160deg,#2E3A4A 0%,#1E2832 100%);
+  background-image: url('https://images.unsplash.com/photo-1629909615184-74f495363b67?w=500&q=75&fit=crop&crop=center');
+}
+.ind-bg-6 {
+  background: linear-gradient(160deg,#3A4A2E 0%,#283218 100%);
+  background-image: url('https://images.unsplash.com/photo-1518611012118-696072aa579a?w=500&q=75&fit=crop&crop=center');
+}
+.ind-bg-7 {
+  background: linear-gradient(160deg,#4A2E3A 0%,#321E28 100%);
+  background-image: url('https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=500&q=75&fit=crop&crop=center');
+}
+.ind-bg-8 {
+  background: linear-gradient(160deg,#2E4A42 0%,#1E322C 100%);
+  background-image: url('https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?w=500&q=75&fit=crop&crop=center');
+}
 
 /* Solid fallback colours per card */
 .ind-card:nth-child(1) { background: #8B6E5E; }
@@ -564,7 +643,7 @@ footer { background: #111010; padding: 76px 64px 38px; }
 }
 @media (max-width:768px) {
   nav .nav-links { display:none; }
-  .hero-bg { grid-template-columns:1fr; } .hero-bg-right { display:none; }
+  .hero-content { padding:110px 32px 100px; } .hero-stats { left:32px; bottom:40px; } .hero-float-wrap { display:none; }
   .hero-stats { flex-wrap:wrap; gap:28px; }
   body { cursor:auto; } .cursor,.cursor-ring { display:none; }
   .gal-header { flex-direction:column; gap:20px; align-items:flex-start; }
@@ -615,11 +694,12 @@ footer { background: #111010; padding: 76px 64px 38px; }
 <!-- ═══ HERO ═══ -->
 <section class="hero" id="home">
   <div class="hero-bg">
-    <div class="hero-bg-left"></div>
-    <div class="hero-bg-right">
-      <img src="https://picsum.photos/seed/aura-hero/900/1100" alt="美業沙龍">
-    </div>
+    <!-- Full-bleed background image + overlay -->
+    <div class="hero-bg-img"></div>
+    <div class="hero-bg-overlay"></div>
   </div>
+
+  <!-- Main text content -->
   <div class="hero-content">
     <div class="hero-eyebrow">美業數位管理平台</div>
     <h1 class="hero-title">讓美業<br><span class="accent">更精彩</span><br>更從容</h1>
@@ -629,11 +709,25 @@ footer { background: #111010; padding: 76px 64px 38px; }
       <a href="#features" class="btn-outline">了解功能</a>
     </div>
   </div>
+
+  <!-- Bottom left stats -->
   <div class="hero-stats">
     <div><div class="stat-n" data-count="100" data-suffix="+">0</div><div class="stat-l">合作店家</div></div>
     <div><div class="stat-n" data-count="98" data-suffix="%">0</div><div class="stat-l">客戶滿意度</div></div>
     <div><div class="stat-n" data-count="5" data-suffix="k+">0</div><div class="stat-l">月處理預約</div></div>
   </div>
+
+  <!-- Bottom right floating card -->
+  <div class="hero-float-wrap">
+    <div class="hero-float-card">
+      <div class="hero-float-label">本月新增預約</div>
+      <div class="hero-float-val">1,284</div>
+      <div class="hero-float-sub">↑ 12% 較上月</div>
+    </div>
+    <div class="hero-float-pill">即時預約管理中</div>
+  </div>
+
+  <!-- Scroll indicator -->
   <div class="hero-scroll-ind">
     <div class="scroll-line"></div>
     <span class="scroll-text">Scroll</span>
@@ -665,8 +759,8 @@ footer { background: #111010; padding: 76px 64px 38px; }
 <!-- ═══ ABOUT ═══ -->
 <section class="about">
   <div class="about-img-wrap reveal">
-    <img class="about-img-main" src="https://picsum.photos/seed/aura-about/600/800" alt="美容師">
-    <img class="about-img-accent" src="https://picsum.photos/seed/aura-accent/400/400" alt="">
+    <img class="about-img-main" src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=700&q=80&fit=crop&crop=center" alt="美容師服務" onerror="this.style.background='linear-gradient(135deg,#C4A5A8,#8B6E6E)';this.style.display='block';this.removeAttribute('src')">
+    <img class="about-img-accent" src="https://images.unsplash.com/photo-1604654894610-df63bc536371?w=450&q=80&fit=crop&crop=center" alt="美容細節" onerror="this.style.background='linear-gradient(135deg,#A08478,#C4A265)';this.removeAttribute('src')">
     <div class="about-badge">
       <span class="about-badge-n">5+</span>
       <span class="about-badge-l">年深耕美業</span>
@@ -731,17 +825,19 @@ footer { background: #111010; padding: 76px 64px 38px; }
       <button class="fp" data-filter="spa">美容 SPA</button>
     </div>
   </div>
-  <div class="gal-masonry reveal">
-    <div class="gi" data-cat="hair"><img class="gi-img" src="https://picsum.photos/seed/g01/900/700" alt=""><div class="gi-ov"><span class="gi-tag">美髮</span></div></div>
-    <div class="gi" data-cat="nail"><img class="gi-img" src="https://picsum.photos/seed/g02/600/450" alt=""><div class="gi-ov"><span class="gi-tag">美甲</span></div></div>
-    <div class="gi" data-cat="spa"><img class="gi-img" src="https://picsum.photos/seed/g03/500/400" alt=""><div class="gi-ov"><span class="gi-tag">美容</span></div></div>
-    <div class="gi" data-cat="hair"><img class="gi-img" src="https://picsum.photos/seed/g04/700/550" alt=""><div class="gi-ov"><span class="gi-tag">美髮</span></div></div>
-    <div class="gi" data-cat="spa"><img class="gi-img" src="https://picsum.photos/seed/g05/600/500" alt=""><div class="gi-ov"><span class="gi-tag">SPA</span></div></div>
-    <div class="gi" data-cat="nail"><img class="gi-img" src="https://picsum.photos/seed/g06/700/600" alt=""><div class="gi-ov"><span class="gi-tag">美甲</span></div></div>
-    <div class="gi" data-cat="hair"><img class="gi-img" src="https://picsum.photos/seed/g07/700/700" alt=""><div class="gi-ov"><span class="gi-tag">美髮</span></div></div>
-    <div class="gi" data-cat="spa"><img class="gi-img" src="https://picsum.photos/seed/g08/600/550" alt=""><div class="gi-ov"><span class="gi-tag">醫美</span></div></div>
-    <div class="gi" data-cat="hair"><img class="gi-img" src="https://picsum.photos/seed/g09/700/600" alt=""><div class="gi-ov"><span class="gi-tag">美髮</span></div></div>
-    <div class="gi" data-cat="spa"><img class="gi-img" src="https://picsum.photos/seed/g10/800/600" alt=""><div class="gi-ov"><span class="gi-tag">美容</span></div></div>
+  <!-- 動態相簿：從 Firebase 讀取，未設定時顯示示範圖 -->
+  <div class="gal-masonry reveal" id="frontGallery">
+    <!-- JS 動態填入 -->
+    <div class="gi" data-cat="hair"><img class="gi-img" src="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=800&q=80&fit=crop" alt="美髮造型" onerror="this.closest('.gi').style.background='linear-gradient(135deg,#5C3A3A,#3D2020)'"><div class="gi-ov"><span class="gi-tag">美髮</span></div></div>
+    <div class="gi" data-cat="nail"><img class="gi-img" src="https://images.unsplash.com/photo-1604654894610-df63bc536371?w=600&q=80&fit=crop" alt="美甲設計" onerror="this.closest('.gi').style.background='linear-gradient(135deg,#3A2E4A,#2A1E38)'"><div class="gi-ov"><span class="gi-tag">美甲</span></div></div>
+    <div class="gi" data-cat="spa"><img class="gi-img" src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&q=80&fit=crop" alt="美容護膚" onerror="this.closest('.gi').style.background='linear-gradient(135deg,#2E4A3A,#1E3228)'"><div class="gi-ov"><span class="gi-tag">美容</span></div></div>
+    <div class="gi" data-cat="hair"><img class="gi-img" src="https://images.unsplash.com/photo-1562322140-8baeececf3df?w=700&q=80&fit=crop" alt="美髮剪染" onerror="this.closest('.gi').style.background='linear-gradient(135deg,#4A3A2E,#32281E)'"><div class="gi-ov"><span class="gi-tag">美髮</span></div></div>
+    <div class="gi" data-cat="spa"><img class="gi-img" src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=600&q=80&fit=crop" alt="SPA按摩" onerror="this.closest('.gi').style.background='linear-gradient(135deg,#2E3A4A,#1E2832)'"><div class="gi-ov"><span class="gi-tag">SPA</span></div></div>
+    <div class="gi" data-cat="nail"><img class="gi-img" src="https://images.unsplash.com/photo-1604654894610-df63bc536371?w=700&q=80&fit=crop&crop=bottom" alt="美甲作品" onerror="this.closest('.gi').style.background='linear-gradient(135deg,#3A2E4A,#2A1E38)'"><div class="gi-ov"><span class="gi-tag">美甲</span></div></div>
+    <div class="gi" data-cat="hair"><img class="gi-img" src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=700&q=80&fit=crop" alt="護髮造型" onerror="this.closest('.gi').style.background='linear-gradient(135deg,#5C3A3A,#3D2020)'"><div class="gi-ov"><span class="gi-tag">美髮</span></div></div>
+    <div class="gi" data-cat="spa"><img class="gi-img" src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=600&q=80&fit=crop" alt="美容彩妝" onerror="this.closest('.gi').style.background='linear-gradient(135deg,#2E4A3A,#1E3228)'"><div class="gi-ov"><span class="gi-tag">醫美</span></div></div>
+    <div class="gi" data-cat="hair"><img class="gi-img" src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=700&q=80&fit=crop" alt="髮廊造型" onerror="this.closest('.gi').style.background='linear-gradient(135deg,#5C3A3A,#3D2020)'"><div class="gi-ov"><span class="gi-tag">美髮</span></div></div>
+    <div class="gi" data-cat="spa"><img class="gi-img" src="https://images.unsplash.com/photo-1629909615184-74f495363b67?w=800&q=80&fit=crop" alt="醫美療程" onerror="this.closest('.gi').style.background='linear-gradient(135deg,#2E3A4A,#1E2832)'"><div class="gi-ov"><span class="gi-tag">美容</span></div></div>
   </div>
 </section>
 
@@ -1015,19 +1111,6 @@ const co=new IntersectionObserver(e=>e.forEach(x=>{
 }),{threshold:.5});
 document.querySelectorAll('[data-count]').forEach(el=>co.observe(el));
 
-// ── Gallery filter ──
-document.querySelectorAll('.fp').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.fp').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
-    const f=btn.dataset.filter;
-    document.querySelectorAll('.gi').forEach((item,i)=>{
-      const show=f==='all'||item.dataset.cat===f;
-      item.style.transition=`opacity .4s ${i*.04}s, transform .4s ${i*.04}s`;
-      item.style.opacity=show?'1':'.1'; item.style.transform=show?'scale(1)':'scale(.97)';
-    });
-  });
-});
-
 // ── Hero parallax ──
 window.addEventListener('scroll',()=>{
   const img=document.querySelector('.hero-bg-right img');
@@ -1039,6 +1122,118 @@ function handleSubmit(btn){
   btn.textContent='送出中...'; btn.style.background='#7A7570'; btn.style.pointerEvents='none';
   setTimeout(()=>{ btn.textContent='已成功送出！我們將盡快聯繫你'; btn.style.background='#7DAE81'; },1300);
 }
+
+// ══════════════════════════════════════
+// GALLERY — Firebase + fallback
+// ══════════════════════════════════════
+const CAT_MAP = { '美髮':'hair', '美甲':'nail', '美睫':'nail', '美容':'spa', 'SPA':'spa', '醫美':'spa', '其他':'hair' };
+const GRID_SPANS = [
+  [5,7],[4,4],[3,4],[4,5],[3,5],
+  [5,6],[4,6],[3,5],[5,5],[7,5]
+];
+
+let allImages = [];       // loaded from Firebase or LS
+let activeGalFilter = 'all';
+
+function isFirebaseConfigured() {
+  return window.AURA_CONFIG &&
+    window.AURA_CONFIG.FIREBASE_PROJECT_ID !== 'YOUR_PROJECT_ID';
+}
+
+// Try to init Firebase quietly
+let db = null;
+function tryInitFirebase() {
+  if (!isFirebaseConfigured()) return;
+  try {
+    if (!firebase.apps.length) {
+      firebase.initializeApp({
+        apiKey:      window.AURA_CONFIG.FIREBASE_API_KEY,
+        authDomain:  window.AURA_CONFIG.FIREBASE_AUTH_DOMAIN,
+        projectId:   window.AURA_CONFIG.FIREBASE_PROJECT_ID,
+        appId:       window.AURA_CONFIG.FIREBASE_APP_ID,
+      });
+    }
+    db = firebase.firestore();
+  } catch(e) { console.warn('Firebase init failed', e); }
+}
+
+async function loadGalleryImages() {
+  // 1. Try Firebase
+  if (db) {
+    try {
+      const snap = await db.collection('gallery').orderBy('createdAt','desc').limit(20).get();
+      if (!snap.empty) {
+        return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      }
+    } catch(e) { console.warn('Firestore read failed', e); }
+  }
+  // 2. Try localStorage (set by admin.html when no cloud)
+  try {
+    const ls = JSON.parse(localStorage.getItem('aura_gallery_v2') || '[]');
+    if (ls.length) return ls;
+  } catch(e) {}
+  // 3. Return empty → keep placeholder images
+  return [];
+}
+
+function renderFrontGallery(imgs, filter) {
+  const grid = document.getElementById('frontGallery');
+  if (!grid) return;
+
+  const filtered = filter === 'all' ? imgs : imgs.filter(img => {
+    const cat = CAT_MAP[img.category] || 'hair';
+    return cat === filter;
+  });
+
+  if (!filtered.length) return; // keep placeholder if nothing uploaded yet
+
+  grid.innerHTML = filtered.slice(0, 10).map((img, i) => {
+    const spans = GRID_SPANS[i] || [4,4];
+    const cat = CAT_MAP[img.category] || 'hair';
+    return `
+      <div class="gi" data-cat="${cat}"
+        style="grid-column:span ${spans[0]};grid-row:span ${spans[1]}">
+        <img class="gi-img" src="${img.url}" alt="${img.label || ''}" loading="lazy">
+        <div class="gi-ov"><span class="gi-tag">${img.label || img.category || ''}</span></div>
+      </div>`;
+  }).join('');
+
+  // Re-attach cursor listeners to new elements
+  grid.querySelectorAll('.gi').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{ cur.classList.add('expand'); ring.classList.add('expand'); });
+    el.addEventListener('mouseleave',()=>{ cur.classList.remove('expand'); ring.classList.remove('expand'); });
+  });
+}
+
+// Gallery filter buttons
+document.querySelectorAll('.fp').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.fp').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    activeGalFilter = btn.dataset.filter;
+    if (allImages.length) {
+      renderFrontGallery(allImages, activeGalFilter);
+    } else {
+      // fallback: filter placeholder elements
+      document.querySelectorAll('#frontGallery .gi').forEach((item,i)=>{
+        const show = activeGalFilter==='all' || item.dataset.cat===activeGalFilter;
+        item.style.transition=`opacity .4s ${i*.04}s, transform .4s ${i*.04}s`;
+        item.style.opacity=show?'1':'.1'; item.style.transform=show?'scale(1)':'scale(.97)';
+      });
+    }
+  });
+});
+
+// Init on load
+(async () => {
+  tryInitFirebase();
+  const imgs = await loadGalleryImages();
+  if (imgs.length) {
+    allImages = imgs;
+    renderFrontGallery(imgs, 'all');
+  }
+  // else placeholder images already in DOM
+})();
 </script>
 </body>
 </html>
